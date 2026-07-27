@@ -159,7 +159,7 @@ function CityPage() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="For example: Broad Street or 19140"
+          placeholder="For example: a street name or ZIP code"
           className="mt-2 min-h-14 w-full rounded-md border-2 border-input bg-card px-4 text-lg placeholder:text-muted-foreground"
         />
 
