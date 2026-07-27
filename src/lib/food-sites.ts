@@ -45,6 +45,10 @@ export type City = {
   sourceUrl: string;
   /** False when we have no verified public data feed yet. */
   available: boolean;
+  /** Shown on the city page when there is no list, or when it is limited. */
+  note?: string;
+  /** Local place to send people when we have no list. */
+  fallback?: { label: string; url: string };
 };
 
 export const CITIES: City[] = [
@@ -55,8 +59,8 @@ export const CITIES: City[] = [
     state: "NY",
     timeZone: "America/New_York",
     center: { lat: 40.7128, lng: -74.006 },
-    sourceName: "NYC Open Data",
-    sourceUrl: "https://opendata.cityofnewyork.us/",
+    sourceName: "Food Help NYC (NYC Department of Social Services)",
+    sourceUrl: "https://finder.nyc.gov/foodhelp",
     available: true,
   },
   {
@@ -66,20 +70,30 @@ export const CITIES: City[] = [
     state: "IL",
     timeZone: "America/Chicago",
     center: { lat: 41.8781, lng: -87.6298 },
-    sourceName: "Chicago Data Portal",
-    sourceUrl: "https://data.cityofchicago.org/",
-    available: true,
+    sourceName: "Greater Chicago Food Depository",
+    sourceUrl: "https://www.chicagosfoodbank.org/find-food/",
+    available: false,
+    note: "Chicago does not publish an open list of pantry locations that we can read, so we do not show one here rather than show you information we cannot check.",
+    fallback: {
+      label: "Greater Chicago Food Depository food finder",
+      url: "https://www.chicagosfoodbank.org/find-food/",
+    },
   },
   {
     id: "kansas-city",
     name: "Kansas City",
     shortName: "Kansas City",
-    state: "MO",
+    state: "KS and MO",
     timeZone: "America/Chicago",
     center: { lat: 39.0997, lng: -94.5786 },
-    sourceName: "Kansas City Open Data",
-    sourceUrl: "https://data.kcmo.org/",
+    sourceName: "Unified Government of Wyandotte County / Kansas City, KS",
+    sourceUrl: "https://gisweb.wycokck.org/",
     available: true,
+    note: "The only public list for the Kansas City area covers Wyandotte County and Kansas City, Kansas. It does not include hours or phone numbers, so please call 211 to check before you travel.",
+    fallback: {
+      label: "Harvesters food finder for the wider Kansas City area",
+      url: "https://www.harvesters.org/Get-Help/Find-Food",
+    },
   },
   {
     id: "philadelphia",
@@ -94,6 +108,7 @@ export const CITIES: City[] = [
     available: true,
   },
 ];
+
 
 export function getCity(id: string): City | undefined {
   return CITIES.find((c) => c.id === id);
