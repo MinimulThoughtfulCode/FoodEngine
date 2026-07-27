@@ -104,6 +104,25 @@ function CityPage() {
         Free food in {city.name}
       </h1>
 
+      {city.available && city.note && (
+        <div className="mt-5 rounded-md border-2 border-border bg-muted p-5 text-lg">
+          <p>{city.note}</p>
+          {city.fallback && (
+            <p className="mt-2">
+              You can also try the{" "}
+              <a
+                href={city.fallback.url}
+                className="font-bold underline decoration-2 underline-offset-4"
+              >
+                {city.fallback.label}
+              </a>
+              .
+            </p>
+          )}
+        </div>
+      )}
+
+
       <section aria-labelledby="location-heading" className="mt-6">
         <h2 id="location-heading" className="text-2xl font-bold">
           Show the closest places
