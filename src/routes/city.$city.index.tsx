@@ -12,7 +12,7 @@ import {
 } from "@/lib/food-sites";
 import { getCitySites } from "@/lib/food-sites.functions";
 
-export const Route = createFileRoute("/city/$city")({
+export const Route = createFileRoute("/city/$city/")({
   beforeLoad: ({ params }) => {
     if (!getCity(params.city)) throw notFound();
   },
