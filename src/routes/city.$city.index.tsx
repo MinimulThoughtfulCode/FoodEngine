@@ -175,8 +175,9 @@ function CityPage() {
               We do not have a verified list for {city.name} yet.
             </p>
             <p className="mt-2">
-              We only show food sites from official city data, so nothing here is
-              made up. In the meantime, call or text{" "}
+              {city.note ??
+                "We only show food sites from official city data, so nothing here is made up."}{" "}
+              In the meantime, call or text{" "}
               <a
                 href="tel:211"
                 className="font-bold underline decoration-2 underline-offset-4"
@@ -185,8 +186,21 @@ function CityPage() {
               </a>{" "}
               for free local food help in {city.name}.
             </p>
+            {city.fallback && (
+              <p className="mt-2">
+                You can also try the{" "}
+                <a
+                  href={city.fallback.url}
+                  className="font-bold underline decoration-2 underline-offset-4"
+                >
+                  {city.fallback.label}
+                </a>
+                .
+              </p>
+            )}
           </div>
         )}
+
 
         {!isPending && sites.length > 0 && (
           <>
