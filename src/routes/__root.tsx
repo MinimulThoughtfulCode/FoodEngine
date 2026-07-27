@@ -14,21 +14,18 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Go home
-          </Link>
-        </div>
+    <div className="mx-auto max-w-2xl px-5 py-16 text-center">
+      <h1 className="text-4xl font-bold">Page not found</h1>
+      <p className="mt-3 text-muted-foreground">
+        That page does not exist. Start again from the city list.
+      </p>
+      <div className="mt-6">
+        <Link
+          to="/"
+          className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+        >
+          Find food near me
+        </Link>
       </div>
     </div>
   );
@@ -42,31 +39,27 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
-            onClick={() => {
-              router.invalidate();
-              reset();
-            }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
-        </div>
+    <div className="mx-auto max-w-2xl px-5 py-16 text-center">
+      <h1 className="text-3xl font-bold">This page did not load</h1>
+      <p className="mt-3 text-muted-foreground">
+        Something went wrong. Try again, or go back to the city list.
+      </p>
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <button
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
+          className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+        >
+          Try again
+        </button>
+        <a
+          href="/"
+          className="inline-flex min-h-12 items-center rounded-md border-2 border-primary px-6 text-lg font-bold text-primary"
+        >
+          Go home
+        </a>
       </div>
     </div>
   );
@@ -77,19 +70,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Free Food Finder — food banks and free meals near you" },
+      {
+        name: "description",
+        content:
+          "Find free food banks, pantries and hot meals near you in New York City, Chicago, Kansas City and Philadelphia. No sign up needed.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
@@ -119,8 +119,69 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-3 focus:text-lg focus:font-bold focus:text-primary-foreground"
+      >
+        Skip to main content
+      </a>
+
+      <div className="flex min-h-dvh flex-col">
+        <header className="border-b-4 border-foreground bg-card">
+          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-5 py-4">
+            <Link to="/" className="text-2xl font-bold tracking-tight">
+              Free Food Finder
+            </Link>
+            <nav aria-label="Main">
+              <ul className="flex gap-5 text-lg">
+                <li>
+                  <Link
+                    to="/"
+                    activeOptions={{ exact: true }}
+                    activeProps={{ className: "font-bold" }}
+                    className="underline decoration-2 underline-offset-4"
+                  >
+                    Cities
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/about"
+                    activeProps={{ className: "font-bold" }}
+                    className="underline decoration-2 underline-offset-4"
+                  >
+                    About
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </header>
+
+        <main id="main" className="flex-1">
+          {/* Required: nested routes render here. */}
+          <Outlet />
+        </main>
+
+        <footer className="border-t-2 border-border bg-card">
+          <div className="mx-auto max-w-3xl px-5 py-6 text-base text-muted-foreground">
+            <p>
+              This site is free to use. We do not ask for your name and we do not
+              store your location.
+            </p>
+            <p className="mt-2">
+              In an emergency in the United States, call or text{" "}
+              <a
+                href="tel:211"
+                className="font-bold text-foreground underline decoration-2 underline-offset-4"
+              >
+                211
+              </a>{" "}
+              for local food and shelter help.
+            </p>
+          </div>
+        </footer>
+      </div>
     </QueryClientProvider>
   );
 }
