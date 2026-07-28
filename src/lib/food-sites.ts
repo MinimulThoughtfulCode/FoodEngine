@@ -42,11 +42,7 @@ export type FoodSite = {
   closed: boolean;
 };
 
-export type CityId =
-  | "philadelphia"
-  | "new-york"
-  | "los-angeles"
-  | "minneapolis";
+export type CityId = "philadelphia" | "new-york" | "los-angeles" | "minneapolis";
 
 export type City = {
   id: CityId;
@@ -111,12 +107,10 @@ export const CITIES: City[] = [
     timeZone: "America/New_York",
     center: { lat: 39.9526, lng: -75.1652 },
     sourceName: "City of Philadelphia (OpenDataPhilly)",
-    sourceUrl:
-      "https://opendataphilly.org/datasets/free-food-and-benefits-access-sites/",
+    sourceUrl: "https://opendataphilly.org/datasets/free-food-and-benefits-access-sites/",
     available: true,
   },
 ];
-
 
 export function getCity(id: string): City | undefined {
   return CITIES.find((c) => c.id === id);
@@ -151,9 +145,7 @@ export function distanceMiles(
   const dLng = toRad(b.lng - a.lng);
   const lat1 = toRad(a.lat);
   const lat2 = toRad(b.lat);
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
@@ -229,9 +221,7 @@ export function getOpenState(site: FoodSite, timeZone: string): OpenState {
   const hasAny = site.hours.some((d) => d.length > 0);
   const { day, minutes } = nowInZone(timeZone);
   const today = site.hours[day] ?? [];
-  const todayLabel = hasAny
-    ? formatDayHours(today)
-    : (site.hoursText ?? "Hours not listed");
+  const todayLabel = hasAny ? formatDayHours(today) : (site.hoursText ?? "Hours not listed");
 
   if (site.closed) {
     return { status: "closed", label: "Temporarily closed", todayLabel };

@@ -61,25 +61,19 @@ export function SiteCard({
 
       {site.availability && (
         <p className="mt-2">
-          <span className="font-semibold">Taking people:</span>{" "}
-          {site.availability}
+          <span className="font-semibold">Taking people:</span> {site.availability}
         </p>
       )}
 
       <p className="mt-1 text-muted-foreground">{site.address}</p>
 
-      {distance !== undefined && (
-        <p className="mt-1 font-semibold">{formatDistance(distance)}</p>
-      )}
+      {distance !== undefined && <p className="mt-1 font-semibold">{formatDistance(distance)}</p>}
 
-      {site.category && (
-        <p className="mt-1 text-muted-foreground">{site.category}</p>
-      )}
+      {site.category && <p className="mt-1 text-muted-foreground">{site.category}</p>}
 
       {site.offerings.length > 0 && (
         <p className="mt-2">
-          <span className="font-semibold">Food you can get:</span>{" "}
-          {site.offerings.join(", ")}
+          <span className="font-semibold">Food you can get:</span> {site.offerings.join(", ")}
         </p>
       )}
 

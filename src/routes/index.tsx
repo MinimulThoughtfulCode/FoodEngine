@@ -27,12 +27,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="mx-auto max-w-3xl px-5 py-10">
-      <h1 className="text-4xl font-bold leading-tight sm:text-5xl">
-        Find free food near you
-      </h1>
+      <h1 className="text-4xl font-bold leading-tight sm:text-5xl">Find free food near you</h1>
       <p className="mt-4 text-xl">
-        Everything here is free. You do not need to sign up, pay, or give your
-        name.
+        Everything here is free. You do not need to sign up, pay, or give your name.
       </p>
 
       <h2 className="mt-10 text-2xl font-bold">Where are you right now?</h2>
@@ -45,9 +42,7 @@ function Index() {
               className="flex min-h-24 flex-col justify-center rounded-lg border-2 border-foreground bg-card px-6 py-5 hover:bg-accent"
             >
               <span className="text-2xl font-bold">{city.name}</span>
-              <span className="text-base text-muted-foreground">
-                {city.state}
-              </span>
+              <span className="text-base text-muted-foreground">{city.state}</span>
             </Link>
           </li>
         ))}
@@ -57,18 +52,15 @@ function Index() {
       <ol className="mt-4 list-decimal space-y-2 pl-6 text-lg">
         <li>Choose the city you are in.</li>
         <li>
-          If you want, tap <strong>Use my location</strong> so we can show the
-          closest places first. This is optional.
+          If you want, tap <strong>Use my location</strong> so we can show the closest places first.
+          This is optional.
         </li>
         <li>Call ahead if you can, then get directions.</li>
       </ol>
 
       <p className="mt-8 text-lg">
         Not in one of these cities? Call or text{" "}
-        <a
-          href="tel:211"
-          className="font-bold underline decoration-2 underline-offset-4"
-        >
+        <a href="tel:211" className="font-bold underline decoration-2 underline-offset-4">
           211
         </a>{" "}
         anywhere in the United States for free local food help.
