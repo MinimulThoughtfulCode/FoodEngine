@@ -120,6 +120,10 @@ async function loadPhiladelphia(): Promise<FoodSite[]> {
       lng,
       category: clean(p.category_type) ?? clean(p.category),
       hours,
+      hoursText: null,
+      availability: null,
+      requirements: null,
+      offerings: [],
       notes,
       closed:
         clean(p.status)?.toLowerCase() === "inactive" ||
@@ -207,6 +211,10 @@ async function loadNewYork(): Promise<FoodSite[]> {
       lng,
       category: category || "Free food program",
       hours,
+      hoursText: clean(p.fp_hours_orig) ?? clean(p.sk_hours_orig),
+      availability: null,
+      requirements: null,
+      offerings: [],
       notes,
       closed: false,
     });
@@ -285,12 +293,6 @@ function parseScheduleText(text: string): WeekHours {
   type Group = { days: number[]; timeStart: number; timeEnd: number };
   const groups: Group[] = [];
   let current: { days: number[]; start: number; lastEnd: number } | null = null;
-  const applyRange = (days: number[], from: number, to: number) => {
-    if (from === to) return days;
-    return days;
-  };
-  void applyRange;
-
   for (let i = 0; i < marks.length; i++) {
     const mark = marks[i];
     if (current) {
