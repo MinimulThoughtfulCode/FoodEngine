@@ -229,13 +229,19 @@ export function getOpenState(site: FoodSite, timeZone: string): OpenState {
   const hasAny = site.hours.some((d) => d.length > 0);
   const { day, minutes } = nowInZone(timeZone);
   const today = site.hours[day] ?? [];
-  const todayLabel = hasAny ? formatDayHours(today) : "Hours not listed";
+  const todayLabel = hasAny
+    ? formatDayHours(today)
+    : (site.hoursText ?? "Hours not listed");
 
   if (site.closed) {
     return { status: "closed", label: "Temporarily closed", todayLabel };
   }
   if (!hasAny) {
-    return { status: "unknown", label: "Call to check hours", todayLabel };
+    return {
+      status: "unknown",
+      label: site.hoursText ? "Call to check the times below" : "Call to check hours",
+      todayLabel,
+    };
   }
 
   for (const r of today) {
