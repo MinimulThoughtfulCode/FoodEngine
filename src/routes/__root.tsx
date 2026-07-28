@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -119,6 +120,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Analytics />
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-3 focus:text-lg focus:font-bold focus:text-primary-foreground"
@@ -166,8 +168,8 @@ function RootComponent() {
         <footer className="border-t-2 border-border bg-card">
           <div className="mx-auto max-w-3xl px-5 py-6 text-base text-muted-foreground">
             <p>
-              This site is free to use. We do not ask for your name and we do not
-              store your location.
+              This site is free to use. We do not ask for your name and we do not store your
+              location.
             </p>
             <p className="mt-2">
               In an emergency in the United States, call or text{" "}

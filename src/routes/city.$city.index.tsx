@@ -50,9 +50,9 @@ function CityPage() {
   });
 
   const [coords, setCoords] = useState<Coords | null>(null);
-  const [locStatus, setLocStatus] = useState<
-    "idle" | "loading" | "denied" | "error" | "ready"
-  >("idle");
+  const [locStatus, setLocStatus] = useState<"idle" | "loading" | "denied" | "error" | "ready">(
+    "idle",
+  );
   const [query, setQuery] = useState("");
   const [openOnly, setOpenOnly] = useState(false);
 
@@ -81,8 +81,7 @@ function CityPage() {
     }));
 
     if (query.trim()) list = list.filter((r) => matchesQuery(r.site, query));
-    if (openOnly)
-      list = list.filter((r) => getOpenState(r.site, city.timeZone).status === "open");
+    if (openOnly) list = list.filter((r) => getOpenState(r.site, city.timeZone).status === "open");
 
     if (coords) {
       list.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
@@ -100,9 +99,7 @@ function CityPage() {
         </Link>
       </p>
 
-      <h1 className="mt-4 text-4xl font-bold leading-tight">
-        Free food in {city.name}
-      </h1>
+      <h1 className="mt-4 text-4xl font-bold leading-tight">Free food in {city.name}</h1>
 
       {city.available && city.note && (
         <div className="mt-5 rounded-md border-2 border-border bg-muted p-5 text-lg">
@@ -121,7 +118,6 @@ function CityPage() {
           )}
         </div>
       )}
-
 
       <section aria-labelledby="location-heading" className="mt-6">
         <h2 id="location-heading" className="text-2xl font-bold">
@@ -183,24 +179,19 @@ function CityPage() {
 
         {(isError || data?.error) && (
           <p role="alert" className="mt-4 rounded-md border-2 border-destructive p-4 text-lg">
-            We could not load the list right now. Please try again in a few
-            minutes, or call 211 for help finding food.
+            We could not load the list right now. Please try again in a few minutes, or call 211 for
+            help finding food.
           </p>
         )}
 
         {!isPending && !isError && !data?.error && sites.length === 0 && (
           <div className="mt-4 rounded-md border-2 border-border bg-card p-5">
-            <p className="text-lg font-bold">
-              We do not have a verified list for {city.name} yet.
-            </p>
+            <p className="text-lg font-bold">We do not have a verified list for {city.name} yet.</p>
             <p className="mt-2">
               {city.note ??
                 "We only show food sites from official city data, so nothing here is made up."}{" "}
               In the meantime, call or text{" "}
-              <a
-                href="tel:211"
-                className="font-bold underline decoration-2 underline-offset-4"
-              >
+              <a href="tel:211" className="font-bold underline decoration-2 underline-offset-4">
                 211
               </a>{" "}
               for free local food help in {city.name}.
@@ -220,29 +211,21 @@ function CityPage() {
           </div>
         )}
 
-
         {!isPending && sites.length > 0 && (
           <>
             <p aria-live="polite" className="mt-2 text-lg">
               {results.length} place{results.length === 1 ? "" : "s"} found
-              {shown.length < results.length
-                ? `. Showing the first ${shown.length}.`
-                : "."}
+              {shown.length < results.length ? `. Showing the first ${shown.length}.` : "."}
             </p>
             <ul className="mt-5 space-y-5">
               {shown.map((r) => (
-                <SiteCard
-                  key={r.site.id}
-                  site={r.site}
-                  city={city}
-                  distance={r.distance}
-                />
+                <SiteCard key={r.site.id} site={r.site} city={city} distance={r.distance} />
               ))}
             </ul>
             {results.length === 0 && (
               <p className="mt-4 text-lg">
-                Nothing matched. Try clearing the search box or the &ldquo;open
-                right now&rdquo; filter.
+                Nothing matched. Try clearing the search box or the &ldquo;open right now&rdquo;
+                filter.
               </p>
             )}
           </>
@@ -250,8 +233,8 @@ function CityPage() {
       </section>
 
       <p className="mt-10 text-base text-muted-foreground">
-        Information comes from {city.sourceName}. Hours can change without
-        notice, so call ahead if you can.
+        Information comes from {city.sourceName}. Hours can change without notice, so call ahead if
+        you can.
       </p>
     </div>
   );

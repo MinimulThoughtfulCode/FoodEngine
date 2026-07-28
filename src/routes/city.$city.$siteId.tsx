@@ -144,9 +144,7 @@ function SiteDetail() {
           Opening hours
         </h2>
         <table className="mt-4 w-full border-collapse text-lg">
-          <caption className="sr-only">
-            Weekly opening hours for {site.name}
-          </caption>
+          <caption className="sr-only">Weekly opening hours for {site.name}</caption>
           <tbody>
             {DAY_NAMES.map((day, i) => (
               <tr key={day} className="border-b-2 border-border">
@@ -171,8 +169,8 @@ function SiteDetail() {
           </p>
         )}
         <p className="mt-3 text-base text-muted-foreground">
-          Places like this do not publish how many meals or bags are left, so
-          call ahead to check they still have food today.
+          Places like this do not publish how many meals or bags are left, so call ahead to check
+          they still have food today.
         </p>
       </section>
 
@@ -245,8 +243,7 @@ function SiteDetail() {
       )}
 
       <p className="mt-10 text-base text-muted-foreground">
-        Hours come from {city.sourceName} and can change without notice. Call
-        ahead if you can.
+        Hours come from {city.sourceName} and can change without notice. Call ahead if you can.
       </p>
     </div>
   );

@@ -126,9 +126,7 @@ async function loadPhiladelphia(): Promise<FoodSite[]> {
       offerings: [],
       notes,
       closed:
-        clean(p.status)?.toLowerCase() === "inactive" ||
-        Boolean(closureNote) ||
-        Boolean(seasonal),
+        clean(p.status)?.toLowerCase() === "inactive" || Boolean(closureNote) || Boolean(seasonal),
     });
   }
   return sites;
@@ -471,7 +469,6 @@ const LOADERS: Partial<Record<CityId, () => Promise<FoodSite[]>>> = {
   "los-angeles": loadLosAngeles,
   minneapolis: loadMinneapolis,
 };
-
 
 export async function loadCitySites(city: CityId): Promise<FoodSite[]> {
   const hit = cache.get(city);
