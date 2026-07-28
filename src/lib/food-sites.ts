@@ -25,13 +25,28 @@ export type FoodSite = {
   /** e.g. "Food pantry", "Hot meal" */
   category: string | null;
   hours: WeekHours;
+  /** Hours exactly as the city wrote them, when they are not a clean table. */
+  hoursText: string | null;
+  /**
+   * Whether they are taking people right now, in the city's own words —
+   * e.g. "Open and accepting new clients" or "Not accepting new customers".
+   */
+  availability: string | null;
+  /** What you need to bring or qualify for, in the city's own words. */
+  requirements: string | null;
+  /** What food they hand out, e.g. ["Fresh produce", "Meat"]. */
+  offerings: string[];
   /** Free-text notes such as "Closed holidays" or eligibility info. */
   notes: string[];
   /** True when the site is flagged closed / inactive upstream. */
   closed: boolean;
 };
 
-export type CityId = "philadelphia" | "new-york" | "chicago" | "kansas-city";
+export type CityId =
+  | "philadelphia"
+  | "new-york"
+  | "los-angeles"
+  | "minneapolis";
 
 export type City = {
   id: CityId;
