@@ -59,6 +59,13 @@ export function SiteCard({
         <span className="font-semibold">Today:</span> {state.todayLabel}
       </p>
 
+      {site.availability && (
+        <p className="mt-2">
+          <span className="font-semibold">Taking people:</span>{" "}
+          {site.availability}
+        </p>
+      )}
+
       <p className="mt-1 text-muted-foreground">{site.address}</p>
 
       {distance !== undefined && (
@@ -67,6 +74,13 @@ export function SiteCard({
 
       {site.category && (
         <p className="mt-1 text-muted-foreground">{site.category}</p>
+      )}
+
+      {site.offerings.length > 0 && (
+        <p className="mt-2">
+          <span className="font-semibold">Food you can get:</span>{" "}
+          {site.offerings.join(", ")}
+        </p>
       )}
 
       <div className="mt-4 flex flex-wrap gap-3">

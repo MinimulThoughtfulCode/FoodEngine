@@ -97,6 +97,13 @@ function SiteDetail() {
       </div>
       {site.category && <p className="mt-2 text-lg">{site.category}</p>}
 
+      {site.availability && (
+        <p className="mt-3 rounded-md border-2 border-border bg-muted p-4 text-lg">
+          <span className="font-bold">Taking people right now: </span>
+          {site.availability}
+        </p>
+      )}
+
       <section aria-labelledby="go-heading" className="mt-6">
         <h2 id="go-heading" className="sr-only">
           Contact and directions
@@ -157,7 +164,39 @@ function SiteDetail() {
             ))}
           </tbody>
         </table>
+        {site.hoursText && (
+          <p className="mt-3 text-lg">
+            <span className="font-bold">Hours as the city lists them: </span>
+            {site.hoursText}
+          </p>
+        )}
+        <p className="mt-3 text-base text-muted-foreground">
+          Places like this do not publish how many meals or bags are left, so
+          call ahead to check they still have food today.
+        </p>
       </section>
+
+      {site.offerings.length > 0 && (
+        <section aria-labelledby="food-heading" className="mt-10">
+          <h2 id="food-heading" className="text-2xl font-bold">
+            Food you can get here
+          </h2>
+          <ul className="mt-3 list-disc space-y-2 pl-6 text-lg">
+            {site.offerings.map((o) => (
+              <li key={o}>{o}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {site.requirements && (
+        <section aria-labelledby="need-heading" className="mt-10">
+          <h2 id="need-heading" className="text-2xl font-bold">
+            What you need to bring
+          </h2>
+          <p className="mt-3 text-lg">{site.requirements}</p>
+        </section>
+      )}
 
       {site.notes.length > 0 && (
         <section aria-labelledby="notes-heading" className="mt-10">

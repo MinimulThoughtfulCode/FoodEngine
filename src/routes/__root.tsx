@@ -74,7 +74,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Find free food banks, pantries and hot meals near you in New York City, Chicago, Kansas City and Philadelphia. No sign up needed.",
+          "Find free food banks, pantries and hot meals near you in New York City, Los Angeles, Minneapolis and Philadelphia. No sign up needed.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

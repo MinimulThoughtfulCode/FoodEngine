@@ -120,6 +120,10 @@ async function loadPhiladelphia(): Promise<FoodSite[]> {
       lng,
       category: clean(p.category_type) ?? clean(p.category),
       hours,
+      hoursText: null,
+      availability: null,
+      requirements: null,
+      offerings: [],
       notes,
       closed:
         clean(p.status)?.toLowerCase() === "inactive" ||
@@ -207,6 +211,10 @@ async function loadNewYork(): Promise<FoodSite[]> {
       lng,
       category: category || "Free food program",
       hours,
+      hoursText: clean(p.fp_hours_orig) ?? clean(p.sk_hours_orig),
+      availability: null,
+      requirements: null,
+      offerings: [],
       notes,
       closed: false,
     });
@@ -215,49 +223,238 @@ async function loadNewYork(): Promise<FoodSite[]> {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Kansas City area — Unified Government of Wyandotte County / KCK             */
+/* Shared: reading hours written as plain English                              */
 /* -------------------------------------------------------------------------- */
 
-const KC_LAYER =
-  "https://gisweb.wycokck.org/server/rest/services/Hosted/Dotte_Agency_Food_Sites/FeatureServer/0/query";
+const DAY_INDEX: Record<string, number> = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+};
 
-/** Only the site types that actually give out free food. */
-const KC_FREE_TYPES = new Set([
-  "Food Pantry",
-  "Hot Meals",
-  "Senior Meals",
-  "Emergency Assistance",
-  "Mobile Market Distribution",
-]);
+const DAY_WORD = /(sun|mon|tue|wed|thu|fri|sat)[a-z]*\.?/gi;
 
-async function loadKansasCity(): Promise<FoodSite[]> {
-  const features = await fetchArcgisAll(KC_LAYER);
+function to24(hour: number, minute: number, meridiem: string | null): string {
+  let h = hour % 12;
+  if (meridiem === "pm") h += 12;
+  if (meridiem === null && hour === 12) h = 12;
+  return `${String(h).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+/** Reads things like "7 - 8 am & 11:30 am - 12:30 pm" or "10am-12pm, 2-4 pm". */
+function parseTimeRanges(text: string): TimeRange[] {
+  const out: TimeRange[] = [];
+  const re =
+    /(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?\s*(?:-|–|—|to|until)\s*(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)?/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text))) {
+    const sH = Number(m[1]);
+    const sM = Number(m[2] ?? 0);
+    const eH = Number(m[4]);
+    const eM = Number(m[5] ?? 0);
+    if (sH > 12 || eH > 12 || sH < 1 || eH < 1) continue;
+    const short = (v: string | undefined) =>
+      v ? (v.toLowerCase().startsWith("p") ? "pm" : "am") : null;
+    let sMer = short(m[3]);
+    let eMer = short(m[6]);
+    if (!eMer) eMer = sMer ?? (eH >= 7 && eH <= 11 ? "am" : "pm");
+    if (!sMer) {
+      sMer = eMer;
+      const startMins = (sH % 12) + (sMer === "pm" ? 12 : 0);
+      const endMins = (eH % 12) + (eMer === "pm" ? 12 : 0);
+      if (startMins > endMins) sMer = "am";
+    }
+    out.push({ open: to24(sH, sM, sMer), close: to24(eH, eM, eMer) });
+  }
+  return out;
+}
+
+/** Reads things like "Mon-Fri 10 am-12 pm, 2-4 pm" into a week table. */
+function parseScheduleText(text: string): WeekHours {
+  const hours = emptyWeek();
+  const lower = text.toLowerCase();
+  const marks: Array<{ index: number; end: number; day: number }> = [];
+  DAY_WORD.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = DAY_WORD.exec(lower))) {
+    marks.push({
+      index: m.index,
+      end: m.index + m[0].length,
+      day: DAY_INDEX[m[1].toLowerCase()],
+    });
+  }
+  if (marks.length === 0) return hours;
+
+  // Group consecutive day words that are only separated by , - & / "and".
+  type Group = { days: number[]; timeStart: number; timeEnd: number };
+  const groups: Group[] = [];
+  let current: { days: number[]; start: number; lastEnd: number } | null = null;
+  for (let i = 0; i < marks.length; i++) {
+    const mark = marks[i];
+    if (current) {
+      const between = lower.slice(current.lastEnd, mark.index);
+      if (/^[\s,&/]*(and)?[\s,&/]*$/.test(between)) {
+        current.days.push(mark.day);
+        current.lastEnd = mark.end;
+        continue;
+      }
+      if (/^\s*(-|–|—|thru|through|to)\s*$/.test(between)) {
+        const from = current.days[current.days.length - 1];
+        for (let d = from; ; d = (d + 1) % 7) {
+          if (d !== from) current.days.push(d);
+          if (d === mark.day) break;
+        }
+        current.lastEnd = mark.end;
+        continue;
+      }
+      const next = mark.index;
+      groups.push({
+        days: current.days,
+        timeStart: current.lastEnd,
+        timeEnd: next,
+      });
+    }
+    current = { days: [mark.day], start: mark.index, lastEnd: mark.end };
+  }
+  if (current)
+    groups.push({ days: current.days, timeStart: current.lastEnd, timeEnd: text.length });
+
+  for (const g of groups) {
+    const ranges = parseTimeRanges(text.slice(g.timeStart, g.timeEnd));
+    for (const day of new Set(g.days)) hours[day].push(...ranges);
+  }
+  return hours;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Los Angeles County — Food DROP agencies (LA County Public Works)            */
+/* -------------------------------------------------------------------------- */
+
+const LA_LAYER =
+  "https://dpw.gis.lacounty.gov/dpw/rest/services/epd_food_drop_agencies/FeatureServer/0/query";
+
+const LA_OFFERINGS: Array<[string, string]> = [
+  ["PRODUCE", "Fresh produce"],
+  ["MEAT", "Meat"],
+  ["DAIRY", "Dairy"],
+  ["BAKED_GOODS", "Baked goods"],
+  ["CANNED_FOODS", "Canned food"],
+  ["DRY_FOODS", "Dry goods"],
+  ["PACKAGED_FOODS", "Packaged food"],
+  ["PREPARED_FOODS", "Prepared meals"],
+];
+
+async function loadLosAngeles(): Promise<FoodSite[]> {
+  const features = await fetchArcgisAll(LA_LAYER);
   const sites: FoodSite[] = [];
   for (const f of features) {
     const p = f.properties ?? {};
-    const type = clean(p.type);
-    const name = clean(p.name);
+    const name = clean(p.AGENCY_NAME);
     const coords = f.geometry?.coordinates;
-    if (!name || !type || !KC_FREE_TYPES.has(type)) continue;
-    if (!coords || coords.length < 2) continue;
+    if (!name || !coords || coords.length < 2) continue;
     const [lng, lat] = coords;
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
+    const hoursText = clean(p.OPERATION_HOURS);
+    const active = (clean(p.ACTIVE) ?? "").toLowerCase() === "active";
+    const offerings = LA_OFFERINGS.filter(
+      ([key]) => (clean(p[key]) ?? "").toLowerCase() === "yes",
+    ).map(([, label]) => label);
+
+    const notes: string[] = [];
+    const contact = clean(p.CONTACT_PERSON);
+    if (contact) notes.push(`Ask for: ${contact}`);
+
     sites.push({
-      id: `kansas-city-${p.objectid}`,
-      city: "kansas-city",
+      id: `los-angeles-${p.OBJECTID}`,
+      city: "los-angeles",
       name,
-      address: "Address not listed — use the directions button",
-      phone: null,
-      email: null,
-      website: null,
+      address: clean(p.ADDRESS) ?? "Los Angeles County, CA",
+      phone: clean(p.PHONE_NUMBER)?.split("/")[0].trim() ?? null,
+      email: clean(p.EMAIL)?.split(/[;,]/)[0].trim() ?? null,
+      website: normalizeUrl(p.WEBSITE),
       lat,
       lng,
-      category: type,
-      hours: emptyWeek(),
-      notes: [
-        "The Kansas City area list does not include hours or a phone number, so call 211 first to check this site is open today.",
-      ],
+      category: "Food pantry",
+      hours: hoursText ? parseScheduleText(hoursText) : emptyWeek(),
+      hoursText,
+      availability: active
+        ? "Listed as active and giving out food"
+        : "Listed as not active right now — call before you go",
+      requirements: null,
+      offerings,
+      notes,
+      closed: !active,
+    });
+  }
+  return sites;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Minneapolis — Hennepin County food resources                                */
+/* -------------------------------------------------------------------------- */
+
+const MPLS_LAYER =
+  "https://gis.hennepin.us/arcgis/rest/services/HennepinData/HEALTH/MapServer/3/query";
+
+const MPLS_DAY_FIELDS = [
+  "SUN_HOURS",
+  "MON_HOURS",
+  "TUE_HOURS",
+  "WED_HOURS",
+  "THU_HOURS",
+  "FRI_HOURS",
+  "SAT_HOURS",
+];
+
+async function loadMinneapolis(): Promise<FoodSite[]> {
+  const features = await fetchArcgisAll(MPLS_LAYER);
+  const sites: FoodSite[] = [];
+  for (const f of features) {
+    const p = f.properties ?? {};
+    const name = clean(p.NAME);
+    const coords = f.geometry?.coordinates;
+    if (!name || !coords || coords.length < 2) continue;
+    const [lng, lat] = coords;
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+
+    const hours = emptyWeek();
+    MPLS_DAY_FIELDS.forEach((field, idx) => {
+      const text = clean(p[field]);
+      if (text) hours[idx].push(...parseTimeRanges(text));
+    });
+
+    const description = clean(p.DESCRIPTION);
+    const notTaking = /not accepting new/i.test(description ?? "");
+    const address = [clean(p.ADDRESS), clean(p.ADDRESS2)].filter(Boolean).join(" ");
+
+    sites.push({
+      id: `minneapolis-${p.OBJECTID}`,
+      city: "minneapolis",
+      name,
+      address: [address, clean(p.CITY) ?? "Minneapolis", `MN ${clean(p.ZIP) ?? ""}`.trim()]
+        .filter(Boolean)
+        .join(", "),
+      phone: clean(p.PHONE),
+      email: null,
+      website: normalizeUrl(p.WEBSITE),
+      lat,
+      lng,
+      category: clean(p.TYPE),
+      hours,
+      hoursText: clean(p.HOURS),
+      availability: notTaking
+        ? "Not taking new people right now — call first"
+        : description
+          ? "Open to new people. " + description
+          : null,
+      requirements: clean(p.RESTRICTION),
+      offerings: [],
+      notes: [],
       closed: false,
     });
   }
@@ -271,7 +468,8 @@ async function loadKansasCity(): Promise<FoodSite[]> {
 const LOADERS: Partial<Record<CityId, () => Promise<FoodSite[]>>> = {
   philadelphia: loadPhiladelphia,
   "new-york": loadNewYork,
-  "kansas-city": loadKansasCity,
+  "los-angeles": loadLosAngeles,
+  minneapolis: loadMinneapolis,
 };
 
 

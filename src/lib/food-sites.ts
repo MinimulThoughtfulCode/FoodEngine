@@ -25,13 +25,28 @@ export type FoodSite = {
   /** e.g. "Food pantry", "Hot meal" */
   category: string | null;
   hours: WeekHours;
+  /** Hours exactly as the city wrote them, when they are not a clean table. */
+  hoursText: string | null;
+  /**
+   * Whether they are taking people right now, in the city's own words —
+   * e.g. "Open and accepting new clients" or "Not accepting new customers".
+   */
+  availability: string | null;
+  /** What you need to bring or qualify for, in the city's own words. */
+  requirements: string | null;
+  /** What food they hand out, e.g. ["Fresh produce", "Meat"]. */
+  offerings: string[];
   /** Free-text notes such as "Closed holidays" or eligibility info. */
   notes: string[];
   /** True when the site is flagged closed / inactive upstream. */
   closed: boolean;
 };
 
-export type CityId = "philadelphia" | "new-york" | "chicago" | "kansas-city";
+export type CityId =
+  | "philadelphia"
+  | "new-york"
+  | "los-angeles"
+  | "minneapolis";
 
 export type City = {
   id: CityId;
@@ -64,37 +79,30 @@ export const CITIES: City[] = [
     available: true,
   },
   {
-    id: "chicago",
-    name: "Chicago",
-    shortName: "Chicago",
-    state: "IL",
-    timeZone: "America/Chicago",
-    center: { lat: 41.8781, lng: -87.6298 },
-    sourceName: "Greater Chicago Food Depository",
-    sourceUrl: "https://www.chicagosfoodbank.org/find-food/",
-    available: false,
-    note: "Chicago does not publish an open list of pantry locations that we can read, so we do not show one here rather than show you information we cannot check.",
-    fallback: {
-      label: "Greater Chicago Food Depository food finder",
-      url: "https://www.chicagosfoodbank.org/find-food/",
-    },
+    id: "los-angeles",
+    name: "Los Angeles",
+    shortName: "Los Angeles",
+    state: "CA",
+    timeZone: "America/Los_Angeles",
+    center: { lat: 34.0522, lng: -118.2437 },
+    sourceName: "Los Angeles County Public Works (Food DROP agencies)",
+    sourceUrl: "https://dpw.lacounty.gov/epd/fooddrop/",
+    available: true,
+    note: "This list covers all of Los Angeles County. It says which food each place hands out and whether they are active right now.",
   },
   {
-    id: "kansas-city",
-    name: "Kansas City",
-    shortName: "Kansas City",
-    state: "KS and MO",
+    id: "minneapolis",
+    name: "Minneapolis",
+    shortName: "Minneapolis",
+    state: "MN",
     timeZone: "America/Chicago",
-    center: { lat: 39.0997, lng: -94.5786 },
-    sourceName: "Unified Government of Wyandotte County / Kansas City, KS",
-    sourceUrl: "https://gisweb.wycokck.org/",
+    center: { lat: 44.9778, lng: -93.265 },
+    sourceName: "Hennepin County (food resources)",
+    sourceUrl: "https://gis.hennepin.us/",
     available: true,
-    note: "The only public list for the Kansas City area covers Wyandotte County and Kansas City, Kansas. It does not include hours or phone numbers, so please call 211 to check before you travel.",
-    fallback: {
-      label: "Harvesters food finder for the wider Kansas City area",
-      url: "https://www.harvesters.org/Get-Help/Find-Food",
-    },
+    note: "This list covers Minneapolis and the rest of Hennepin County, with day-by-day hours and whether each place is taking new people.",
   },
+
   {
     id: "philadelphia",
     name: "Philadelphia",
@@ -221,13 +229,19 @@ export function getOpenState(site: FoodSite, timeZone: string): OpenState {
   const hasAny = site.hours.some((d) => d.length > 0);
   const { day, minutes } = nowInZone(timeZone);
   const today = site.hours[day] ?? [];
-  const todayLabel = hasAny ? formatDayHours(today) : "Hours not listed";
+  const todayLabel = hasAny
+    ? formatDayHours(today)
+    : (site.hoursText ?? "Hours not listed");
 
   if (site.closed) {
     return { status: "closed", label: "Temporarily closed", todayLabel };
   }
   if (!hasAny) {
-    return { status: "unknown", label: "Call to check hours", todayLabel };
+    return {
+      status: "unknown",
+      label: site.hoursText ? "Call to check the times below" : "Call to check hours",
+      todayLabel,
+    };
   }
 
   for (const r of today) {
