@@ -529,18 +529,25 @@ async function loadChicago(): Promise<FoodSite[]> {
     if (typeof json.item5 === "number" && locations.length >= json.item5) break;
   }
 
-  // Hours come from a second endpoint, batched by location id.
+  // Hours come from two endpoints (location hours and per-program hours),
+  // batched by location id.
   const schedules = new Map<number, GcfdSchedule[]>();
   const ids = locations.map((l) => l.locationId);
   for (let i = 0; i < ids.length; i += 50) {
-    const chunk = ids.slice(i, i + 50);
-    const res = await fetch(`${GCFD_API}/LocationSchedules?LocationIds=${chunk.join(",")}`);
-    if (!res.ok) continue;
-    const rows = (await res.json()) as GcfdSchedule[];
-    for (const row of rows ?? []) {
-      const list = schedules.get(row.locationId) ?? [];
-      list.push(row);
-      schedules.set(row.locationId, list);
+    const chunk = ids.slice(i, i + 50).join(",");
+    const urls = [
+      `${GCFD_API}/LocationSchedules?LocationIds=${chunk}`,
+      `${GCFD_API}/LocationServiceSchedules?LocationIds=${chunk}&MapRegionId=${GCFD_REGION_MAP_ID}`,
+    ];
+    for (const url of urls) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const rows = (await res.json()) as GcfdSchedule[];
+      for (const row of rows ?? []) {
+        const list = schedules.get(row.locationId) ?? [];
+        list.push(row);
+        schedules.set(row.locationId, list);
+      }
     }
   }
 
