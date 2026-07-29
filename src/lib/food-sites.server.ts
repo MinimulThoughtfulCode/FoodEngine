@@ -722,7 +722,9 @@ async function loadSanFrancisco(): Promise<FoodSite[]> {
       website: normalizeUrl(r.website),
       lat,
       lng,
-      category: categories[0] ?? "Free food program",
+      category:
+        categories.find((c) => /pantry|food|meal|grocer|produce/i.test(c)) ??
+        "Free food program",
       hours,
       hoursText: null,
       availability: null,
