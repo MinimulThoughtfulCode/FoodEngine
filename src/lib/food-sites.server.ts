@@ -566,8 +566,10 @@ async function loadChicago(): Promise<FoodSite[]> {
       const dayIdx = row.dayOfWeek - 1;
       const extra = [clean(row.weeksOfMonth), clean(row.notes)].filter(Boolean).join(" — ");
       if (open && close && dayIdx >= 0 && dayIdx <= 6) {
-        hours[dayIdx].push({ open, close });
-        if (extra) notes.push(`${DAY_LABELS[dayIdx]}: ${extra}`);
+        const already = hours[dayIdx].some((r) => r.open === open && r.close === close);
+        if (!already) hours[dayIdx].push({ open, close });
+        if (extra && !notes.includes(`${DAY_LABELS[dayIdx]}: ${extra}`))
+          notes.push(`${DAY_LABELS[dayIdx]}: ${extra}`);
       } else if (clean(row.contactForHoursMessage)) {
         notes.push(clean(row.contactForHoursMessage)!);
       }
