@@ -118,18 +118,6 @@ export const CITIES: City[] = [
     note: "This list covers Chicago and nearby suburbs, with day-by-day hours and what each place hands out.",
   },
   {
-    id: "san-francisco",
-    name: "San Francisco",
-    shortName: "San Francisco",
-    state: "CA",
-    timeZone: "America/Los_Angeles",
-    center: { lat: 37.7749, lng: -122.4194 },
-    sourceName: "SF Service Guide (ShelterTech)",
-    sourceUrl: "https://sfserviceguide.org/",
-    available: true,
-    note: "Food pantries and free meal programs across San Francisco, with hours and who each place can serve.",
-  },
-  {
     id: "philadelphia",
     name: "Philadelphia",
     shortName: "Philadelphia",
