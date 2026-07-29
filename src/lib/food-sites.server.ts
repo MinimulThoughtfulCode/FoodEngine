@@ -665,7 +665,8 @@ function addSfSchedule(hours: WeekHours, schedule: SfSchedule): void {
     const idx = DAY_LABELS.findIndex((name) => name.toLowerCase() === (d.day ?? "").toLowerCase());
     const open = minutesToTime(d.opens_at);
     const close = minutesToTime(d.closes_at);
-    if (idx >= 0 && open && close) hours[idx].push({ open, close });
+    if (idx >= 0 && open && close && !hours[idx].some((r) => r.open === open && r.close === close))
+      hours[idx].push({ open, close });
   }
 }
 
