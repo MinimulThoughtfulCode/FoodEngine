@@ -13,9 +13,19 @@ import {
 const CACHE_MS = 30 * 60 * 1000;
 const cache = new Map<CityId, { at: number; sites: FoodSite[] }>();
 
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">");
+}
+
 function clean(v: unknown): string | null {
   if (typeof v !== "string") return null;
-  const s = v.trim();
+  const s = decodeEntities(v).trim();
   if (!s || s.toLowerCase() === "null" || s.toLowerCase() === "n/a") return null;
   return s;
 }
@@ -460,6 +470,284 @@ async function loadMinneapolis(): Promise<FoodSite[]> {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Chicago — Greater Chicago Food Depository find-food map                     */
+/* -------------------------------------------------------------------------- */
+
+const GCFD_API = "https://api.accessfood.org/api/MapInformation";
+const GCFD_REGION_ID = 1;
+const GCFD_REGION_MAP_ID = 3;
+
+type GcfdLocation = {
+  locationId: number;
+  locationName: string;
+  address1: string | null;
+  address2: string | null;
+  city: string | null;
+  state: string | null;
+  zipCode: string | null;
+  phone: string | null;
+  website: string | null;
+  contactEmail: string | null;
+  contactName: string | null;
+  notes: string | null;
+  latitude: number | string | null;
+  longitude: number | string | null;
+  foodPrograms: string | null;
+  foodOfferings: string | null;
+  dietRestrictions: string | null;
+  serviceAreas: string | null;
+  inNetWorkInd: number | null;
+};
+
+type GcfdSchedule = {
+  locationId: number;
+  dayOfWeek: number;
+  startTime: string | null;
+  endTime: string | null;
+  notes: string | null;
+  weeksOfMonth: string | null;
+  contactForHoursMessage: string | null;
+};
+
+function timeFromIso(v: string | null): string | null {
+  if (!v) return null;
+  const m = /T(\d{2}:\d{2})/.exec(v);
+  return m ? m[1] : null;
+}
+
+function splitList(v: unknown): string[] {
+  const s = clean(v);
+  if (!s) return [];
+  return [...new Set(s.split(",").map((x) => x.trim()).filter(Boolean))];
+}
+
+async function loadChicago(): Promise<FoodSite[]> {
+  const locations: GcfdLocation[] = [];
+  for (let page = 0; page < 60; page++) {
+    const url =
+      `${GCFD_API}/LocationSearch?radius=45&lat=41.8781&lng=-87.6298` +
+      `&dayAv=&foodProgramAv=&serviceTypeAv=&foodOfferingAv=&dietRestrictionAv=` +
+      `&locationFeatureAv=&languagesAv=&serviceCategoriesAv=` +
+      `&regionId=${GCFD_REGION_ID}&regionMapId=${GCFD_REGION_MAP_ID}` +
+      `&showOutOfNetwork=1&page=${page}&includeLocationOperatingHours=true&isMapV2=true`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Chicago request failed (${res.status})`);
+    const json = (await res.json()) as { item1?: GcfdLocation[]; item5?: number };
+    const batch = json.item1 ?? [];
+    locations.push(...batch);
+    if (batch.length === 0) break;
+    if (typeof json.item5 === "number" && locations.length >= json.item5) break;
+  }
+
+  // Hours come from two endpoints (location hours and per-program hours),
+  // batched by location id.
+  const schedules = new Map<number, GcfdSchedule[]>();
+  const ids = locations.map((l) => l.locationId);
+  for (let i = 0; i < ids.length; i += 50) {
+    const chunk = ids.slice(i, i + 50).join(",");
+    const urls = [
+      `${GCFD_API}/LocationSchedules?LocationIds=${chunk}`,
+      `${GCFD_API}/LocationServiceSchedules?LocationIds=${chunk}&MapRegionId=${GCFD_REGION_MAP_ID}`,
+    ];
+    for (const url of urls) {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const rows = (await res.json()) as GcfdSchedule[];
+      for (const row of rows ?? []) {
+        const list = schedules.get(row.locationId) ?? [];
+        list.push(row);
+        schedules.set(row.locationId, list);
+      }
+    }
+  }
+
+  const sites: FoodSite[] = [];
+  for (const l of locations) {
+    const name = clean(l.locationName);
+    const lat = Number(l.latitude);
+    const lng = Number(l.longitude);
+    if (!name || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) continue;
+
+    const hours = emptyWeek();
+    const notes: string[] = [];
+    for (const row of schedules.get(l.locationId) ?? []) {
+      const open = timeFromIso(row.startTime);
+      const close = timeFromIso(row.endTime);
+      const dayIdx = row.dayOfWeek - 1;
+      const extra = [clean(row.weeksOfMonth), clean(row.notes)].filter(Boolean).join(" — ");
+      if (open && close && dayIdx >= 0 && dayIdx <= 6) {
+        const already = hours[dayIdx].some((r) => r.open === open && r.close === close);
+        if (!already) hours[dayIdx].push({ open, close });
+        if (extra && !notes.includes(`${DAY_LABELS[dayIdx]}: ${extra}`))
+          notes.push(`${DAY_LABELS[dayIdx]}: ${extra}`);
+      } else if (clean(row.contactForHoursMessage)) {
+        notes.push(clean(row.contactForHoursMessage)!);
+      }
+    }
+
+    const generalNote = clean(l.notes);
+    if (generalNote) notes.push(generalNote);
+    const area = clean(l.serviceAreas);
+    const contact = clean(l.contactName);
+    if (contact) notes.push(`Ask for: ${contact}`);
+    const outOfNetwork = l.inNetWorkInd === 0;
+    if (outOfNetwork)
+      notes.push("Not part of the Greater Chicago Food Depository — please call to confirm.");
+
+    const programs = splitList(l.foodPrograms);
+    sites.push({
+      id: `chicago-${l.locationId}`,
+      city: "chicago",
+      name,
+      address: [clean(l.address1), clean(l.address2), clean(l.city) ?? "Chicago", clean(l.state) ?? "IL", clean(l.zipCode)]
+        .filter(Boolean)
+        .join(", "),
+      phone: clean(l.phone),
+      email: clean(l.contactEmail),
+      website: normalizeUrl(l.website),
+      lat,
+      lng,
+      category: programs.join(" and ") || "Free food program",
+      hours,
+      hoursText: null,
+      availability: area ? `Who they serve: ${area}` : null,
+      requirements: splitList(l.dietRestrictions).join(", ") || null,
+      offerings: splitList(l.foodOfferings),
+      notes,
+      closed: false,
+    });
+  }
+  return sites;
+}
+
+/* -------------------------------------------------------------------------- */
+/* San Francisco — SF Service Guide (ShelterTech) open API                     */
+/* -------------------------------------------------------------------------- */
+
+const SFSG_API = "https://askdarcel.org/api/resources";
+/** 11 = Food Pantry, 12 = Free Meals. */
+const SFSG_CATEGORIES = [11, 12];
+
+const DAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+type SfScheduleDay = { day: string | null; opens_at: number | null; closes_at: number | null };
+type SfSchedule = { schedule_days?: SfScheduleDay[] | null } | null;
+
+type SfResource = {
+  id: number;
+  name: string | null;
+  long_description: string | null;
+  short_description: string | null;
+  website: string | null;
+  email: string | null;
+  status: string | null;
+  addresses?: Array<{
+    address_1: string | null;
+    address_2: string | null;
+    city: string | null;
+    state_province: string | null;
+    postal_code: string | null;
+    latitude: string | number | null;
+    longitude: string | number | null;
+  }> | null;
+  phones?: Array<{ number: string | null }> | null;
+  schedule?: SfSchedule;
+  services?: Array<{
+    name: string | null;
+    eligibility: string | null;
+    required_documents: string | null;
+    application_process: string | null;
+    fee: string | null;
+    schedule?: SfSchedule;
+  }> | null;
+};
+
+function minutesToTime(v: number | null): string | null {
+  if (v == null || !Number.isFinite(v)) return null;
+  const h = Math.floor(v / 100);
+  const m = v % 100;
+  if (h < 0 || h > 24 || m > 59) return null;
+  return `${String(Math.min(h, 23)).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
+function addSfSchedule(hours: WeekHours, schedule: SfSchedule): void {
+  for (const d of schedule?.schedule_days ?? []) {
+    const idx = DAY_LABELS.findIndex((name) => name.toLowerCase() === (d.day ?? "").toLowerCase());
+    const open = minutesToTime(d.opens_at);
+    const close = minutesToTime(d.closes_at);
+    if (idx >= 0 && open && close && !hours[idx].some((r) => r.open === open && r.close === close))
+      hours[idx].push({ open, close });
+  }
+}
+
+async function loadSanFrancisco(): Promise<FoodSite[]> {
+  const byId = new Map<number, SfResource>();
+  for (const category of SFSG_CATEGORIES) {
+    const res = await fetch(`${SFSG_API}?category_id=${category}`);
+    if (!res.ok) throw new Error(`San Francisco request failed (${res.status})`);
+    const json = (await res.json()) as { resources?: SfResource[] };
+    for (const r of json.resources ?? []) if (!byId.has(r.id)) byId.set(r.id, r);
+  }
+
+  const sites: FoodSite[] = [];
+  for (const r of byId.values()) {
+    if (r.status && r.status !== "approved") continue;
+    const name = clean(r.name);
+    const address = r.addresses?.[0];
+    const lat = Number(address?.latitude);
+    const lng = Number(address?.longitude);
+    if (!name || !Number.isFinite(lat) || !Number.isFinite(lng) || (!lat && !lng)) continue;
+
+    const hours = emptyWeek();
+    addSfSchedule(hours, r.schedule ?? null);
+    for (const s of r.services ?? []) addSfSchedule(hours, s.schedule ?? null);
+
+    const notes: string[] = [];
+    const description = clean(r.short_description) ?? clean(r.long_description);
+    if (description) notes.push(description.slice(0, 400));
+
+    const requirements = (r.services ?? [])
+      .flatMap((s) => [clean(s.eligibility), clean(s.required_documents)])
+      .filter(Boolean)
+      .join(" ");
+    const howTo = (r.services ?? []).map((s) => clean(s.application_process)).filter(Boolean);
+    if (howTo.length) notes.push(`How to get food: ${howTo[0]}`);
+
+    const categories = (r.services ?? []).map((s) => clean(s.name)).filter(Boolean) as string[];
+
+    sites.push({
+      id: `san-francisco-${r.id}`,
+      city: "san-francisco",
+      name,
+      address: [
+        clean(address?.address_1),
+        clean(address?.address_2),
+        clean(address?.city) ?? "San Francisco",
+        `CA ${clean(address?.postal_code) ?? ""}`.trim(),
+      ]
+        .filter(Boolean)
+        .join(", "),
+      phone: clean(r.phones?.[0]?.number),
+      email: clean(r.email),
+      website: normalizeUrl(r.website),
+      lat,
+      lng,
+      category:
+        categories.find((c) => /pantry|food|meal|grocer|produce/i.test(c)) ??
+        "Free food program",
+      hours,
+      hoursText: null,
+      availability: null,
+      requirements: requirements || null,
+      offerings: [],
+      notes,
+      closed: false,
+    });
+  }
+  return sites;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Registry                                                                    */
 /* -------------------------------------------------------------------------- */
 
@@ -468,6 +756,8 @@ const LOADERS: Partial<Record<CityId, () => Promise<FoodSite[]>>> = {
   "new-york": loadNewYork,
   "los-angeles": loadLosAngeles,
   minneapolis: loadMinneapolis,
+  chicago: loadChicago,
+  "san-francisco": loadSanFrancisco,
 };
 
 export async function loadCitySites(city: CityId): Promise<FoodSite[]> {
