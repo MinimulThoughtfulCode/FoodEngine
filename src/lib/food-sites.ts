@@ -42,7 +42,13 @@ export type FoodSite = {
   closed: boolean;
 };
 
-export type CityId = "philadelphia" | "new-york" | "los-angeles" | "minneapolis";
+export type CityId =
+  | "philadelphia"
+  | "new-york"
+  | "los-angeles"
+  | "minneapolis"
+  | "chicago"
+  | "san-francisco";
 
 export type City = {
   id: CityId;
@@ -99,6 +105,30 @@ export const CITIES: City[] = [
     note: "This list covers Minneapolis and the rest of Hennepin County, with day-by-day hours and whether each place is taking new people.",
   },
 
+  {
+    id: "chicago",
+    name: "Chicago",
+    shortName: "Chicago",
+    state: "IL",
+    timeZone: "America/Chicago",
+    center: { lat: 41.8781, lng: -87.6298 },
+    sourceName: "Greater Chicago Food Depository (Find Food map)",
+    sourceUrl: "https://www.chicagosfoodbank.org/find-food/",
+    available: true,
+    note: "This list covers Chicago and nearby suburbs, with day-by-day hours and what each place hands out.",
+  },
+  {
+    id: "san-francisco",
+    name: "San Francisco",
+    shortName: "San Francisco",
+    state: "CA",
+    timeZone: "America/Los_Angeles",
+    center: { lat: 37.7749, lng: -122.4194 },
+    sourceName: "SF Service Guide (ShelterTech)",
+    sourceUrl: "https://sfserviceguide.org/",
+    available: true,
+    note: "Food pantries and free meal programs across San Francisco, with hours and who each place can serve.",
+  },
   {
     id: "philadelphia",
     name: "Philadelphia",
