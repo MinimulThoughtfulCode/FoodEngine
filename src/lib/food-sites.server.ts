@@ -13,9 +13,19 @@ import {
 const CACHE_MS = 30 * 60 * 1000;
 const cache = new Map<CityId, { at: number; sites: FoodSite[] }>();
 
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&lt;/gi, "<")
+    .replace(/&gt;/gi, ">");
+}
+
 function clean(v: unknown): string | null {
   if (typeof v !== "string") return null;
-  const s = v.trim();
+  const s = decodeEntities(v).trim();
   if (!s || s.toLowerCase() === "null" || s.toLowerCase() === "n/a") return null;
   return s;
 }
