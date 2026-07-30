@@ -94,7 +94,14 @@ function CityPage() {
   }, [sites, coords, query, openOnly, city.timeZone]);
 
   const matchCount = useMemo(() => results.filter((r) => r.matches).length, [results]);
-  const shown = results.slice(0, 40);
+
+  const PAGE_SIZE = 40;
+  const [page, setPage] = useState(0);
+  const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount - 1);
+  const start = safePage * PAGE_SIZE;
+  const shown = results.slice(start, start + PAGE_SIZE);
+
 
 
   return (
