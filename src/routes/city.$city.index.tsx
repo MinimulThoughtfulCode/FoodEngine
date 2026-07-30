@@ -75,21 +75,27 @@ function CityPage() {
   const sites = data?.sites ?? [];
 
   const results = useMemo(() => {
-    let list: Array<{ site: FoodSite; distance?: number }> = sites.map((site) => ({
+    const q = query.trim();
+    let list: Array<{ site: FoodSite; distance?: number; matches: boolean }> = sites.map((site) => ({
       site,
       distance: coords ? distanceMiles(coords, site) : undefined,
+      matches: q ? matchesQuery(site, q) : true,
     }));
 
-    if (query.trim()) list = list.filter((r) => matchesQuery(r.site, query));
     if (openOnly) list = list.filter((r) => getOpenState(r.site, city.timeZone).status === "open");
 
-    if (coords) {
-      list.sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
-    }
+    list.sort((a, b) => {
+      // Places that match the search come first, but nothing is hidden.
+      if (a.matches !== b.matches) return a.matches ? -1 : 1;
+      if (coords) return (a.distance ?? Infinity) - (b.distance ?? Infinity);
+      return a.site.name.localeCompare(b.site.name);
+    });
     return list;
   }, [sites, coords, query, openOnly, city.timeZone]);
 
+  const matchCount = useMemo(() => results.filter((r) => r.matches).length, [results]);
   const shown = results.slice(0, 40);
+
 
   return (
     <div className="mx-auto max-w-3xl px-5 py-8">
@@ -214,8 +220,15 @@ function CityPage() {
         {!isPending && sites.length > 0 && (
           <>
             <p aria-live="polite" className="mt-2 text-lg">
-              {results.length} place{results.length === 1 ? "" : "s"} found
+              {query.trim() && matchCount > 0
+                ? `${matchCount} place${matchCount === 1 ? "" : "s"} match your search, shown first. `
+                : ""}
+              {query.trim() && matchCount === 0
+                ? "Nothing matched your search, so the full list is below. "
+                : ""}
+              {results.length} place{results.length === 1 ? "" : "s"} in all
               {shown.length < results.length ? `. Showing the first ${shown.length}.` : "."}
+              {coords ? " Closest to you first." : ""}
             </p>
             <ul className="mt-5 space-y-5">
               {shown.map((r) => (
@@ -224,10 +237,10 @@ function CityPage() {
             </ul>
             {results.length === 0 && (
               <p className="mt-4 text-lg">
-                Nothing matched. Try clearing the search box or the &ldquo;open right now&rdquo;
-                filter.
+                Nothing to show. Try clearing the &ldquo;open right now&rdquo; filter.
               </p>
             )}
+
           </>
         )}
       </section>
