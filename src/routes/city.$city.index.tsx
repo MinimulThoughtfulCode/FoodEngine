@@ -167,7 +167,10 @@ function CityPage() {
           id="site-search"
           type="search"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(0);
+          }}
           placeholder="For example: a street name or ZIP code"
           className="mt-2 min-h-14 w-full rounded-md border-2 border-input bg-card px-4 text-lg placeholder:text-muted-foreground"
         />
@@ -176,9 +179,13 @@ function CityPage() {
           <input
             type="checkbox"
             checked={openOnly}
-            onChange={(e) => setOpenOnly(e.target.checked)}
+            onChange={(e) => {
+              setOpenOnly(e.target.checked);
+              setPage(0);
+            }}
             className="size-6 accent-[var(--color-primary)]"
           />
+
           Only show places open right now
         </label>
       </section>
