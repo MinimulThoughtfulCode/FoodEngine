@@ -234,7 +234,11 @@ function CityPage() {
                 ? "Nothing matched your search, so the full list is below. "
                 : ""}
               {results.length} place{results.length === 1 ? "" : "s"} in all
-              {shown.length < results.length ? `. Showing the first ${shown.length}.` : "."}
+              {results.length > 0
+                ? `. Showing ${start + 1} to ${start + shown.length}${
+                    pageCount > 1 ? ` (page ${safePage + 1} of ${pageCount})` : ""
+                  }.`
+                : "."}
               {coords ? " Closest to you first." : ""}
             </p>
             <ul className="mt-5 space-y-5">
@@ -242,11 +246,32 @@ function CityPage() {
                 <SiteCard key={r.site.id} site={r.site} city={city} distance={r.distance} />
               ))}
             </ul>
+            {pageCount > 1 && (
+              <nav aria-label="More results" className="mt-6 flex flex-wrap gap-4">
+                <button
+                  type="button"
+                  onClick={() => setPage(safePage - 1)}
+                  disabled={safePage === 0}
+                  className="min-h-14 rounded-md border-2 border-foreground px-6 text-xl font-bold disabled:opacity-40"
+                >
+                  &larr; Previous places
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPage(safePage + 1)}
+                  disabled={safePage >= pageCount - 1}
+                  className="min-h-14 rounded-md bg-primary px-6 text-xl font-bold text-primary-foreground disabled:opacity-40"
+                >
+                  Next places &rarr;
+                </button>
+              </nav>
+            )}
             {results.length === 0 && (
               <p className="mt-4 text-lg">
                 Nothing to show. Try clearing the &ldquo;open right now&rdquo; filter.
               </p>
             )}
+
 
           </>
         )}
