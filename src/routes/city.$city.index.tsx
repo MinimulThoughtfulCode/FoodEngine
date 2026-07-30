@@ -66,7 +66,9 @@ function CityPage() {
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLocStatus("ready");
+        setPage(0);
       },
+
       (err) => setLocStatus(err.code === err.PERMISSION_DENIED ? "denied" : "error"),
       { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
     );
