@@ -220,8 +220,15 @@ function CityPage() {
         {!isPending && sites.length > 0 && (
           <>
             <p aria-live="polite" className="mt-2 text-lg">
-              {results.length} place{results.length === 1 ? "" : "s"} found
+              {query.trim() && matchCount > 0
+                ? `${matchCount} place${matchCount === 1 ? "" : "s"} match your search, shown first. `
+                : ""}
+              {query.trim() && matchCount === 0
+                ? "Nothing matched your search, so the full list is below. "
+                : ""}
+              {results.length} place{results.length === 1 ? "" : "s"} in all
               {shown.length < results.length ? `. Showing the first ${shown.length}.` : "."}
+              {coords ? " Closest to you first." : ""}
             </p>
             <ul className="mt-5 space-y-5">
               {shown.map((r) => (
@@ -230,10 +237,10 @@ function CityPage() {
             </ul>
             {results.length === 0 && (
               <p className="mt-4 text-lg">
-                Nothing matched. Try clearing the search box or the &ldquo;open right now&rdquo;
-                filter.
+                Nothing to show. Try clearing the &ldquo;open right now&rdquo; filter.
               </p>
             )}
+
           </>
         )}
       </section>
