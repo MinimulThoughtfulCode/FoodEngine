@@ -128,35 +128,40 @@ function RootComponent() {
         Skip to main content
       </a>
 
-      <div className="flex min-h-dvh flex-col">
-        <header className="border-b-4 border-foreground bg-card">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-            <Link to="/" className="text-2xl font-bold tracking-tight">
-              Free Food Finder
-            </Link>
-            <nav aria-label="Main">
-              <ul className="flex gap-5 text-lg">
-                <li>
-                  <Link
-                    to="/"
-                    activeOptions={{ exact: true }}
-                    activeProps={{ className: "font-bold" }}
-                    className="underline decoration-2 underline-offset-4"
-                  >
-                    Cities
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/about"
-                    activeProps={{ className: "font-bold" }}
-                    className="underline decoration-2 underline-offset-4"
-                  >
-                    About
-                  </Link>
-                </li>
-              </ul>
-            </nav>
+      <div className="flex min-h-dvh flex-col bg-background">
+        <header className="rounded-b-[2rem] bg-primary text-primary-foreground shadow-lg">
+          <div className="mx-auto max-w-3xl px-5 pb-7 pt-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Link to="/" className="text-2xl font-bold tracking-tight">
+                Free Food Finder
+              </Link>
+              <nav aria-label="Main">
+                <ul className="flex gap-5 text-lg">
+                  <li>
+                    <Link
+                      to="/"
+                      activeOptions={{ exact: true }}
+                      activeProps={{ className: "font-bold" }}
+                      className="underline decoration-2 underline-offset-4"
+                    >
+                      Cities
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/about"
+                      activeProps={{ className: "font-bold" }}
+                      className="underline decoration-2 underline-offset-4"
+                    >
+                      About
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <p className="mt-3 text-lg leading-snug">
+              You are safe here. Everything is free. No sign up, no ID, nothing saved.
+            </p>
           </div>
         </header>
 
@@ -164,6 +169,7 @@ function RootComponent() {
           {/* Required: nested routes render here. */}
           <Outlet />
         </main>
+
 
         <footer className="border-t-2 border-border bg-card">
           <div className="mx-auto max-w-3xl px-5 py-6 text-base text-muted-foreground">
