@@ -23,7 +23,7 @@ function NotFoundComponent() {
       <div className="mt-6">
         <Link
           to="/"
-          className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+          className="inline-flex min-h-12 items-center rounded-xl bg-primary px-6 text-lg font-bold text-primary-foreground"
         >
           Find food near me
         </Link>
@@ -51,13 +51,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             router.invalidate();
             reset();
           }}
-          className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+          className="inline-flex min-h-12 items-center rounded-xl bg-primary px-6 text-lg font-bold text-primary-foreground"
         >
           Try again
         </button>
         <a
           href="/"
-          className="inline-flex min-h-12 items-center rounded-md border-2 border-primary px-6 text-lg font-bold text-primary"
+          className="inline-flex min-h-12 items-center rounded-xl border-2 border-primary px-6 text-lg font-bold text-primary"
         >
           Go home
         </a>
@@ -123,40 +123,45 @@ function RootComponent() {
       <Analytics />
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-3 focus:text-lg focus:font-bold focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-primary focus:px-4 focus:py-3 focus:text-lg focus:font-bold focus:text-primary-foreground"
       >
         Skip to main content
       </a>
 
-      <div className="flex min-h-dvh flex-col">
-        <header className="border-b-4 border-foreground bg-card">
-          <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-5 py-4">
-            <Link to="/" className="text-2xl font-bold tracking-tight">
-              Free Food Finder
-            </Link>
-            <nav aria-label="Main">
-              <ul className="flex gap-5 text-lg">
-                <li>
-                  <Link
-                    to="/"
-                    activeOptions={{ exact: true }}
-                    activeProps={{ className: "font-bold" }}
-                    className="underline decoration-2 underline-offset-4"
-                  >
-                    Cities
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/about"
-                    activeProps={{ className: "font-bold" }}
-                    className="underline decoration-2 underline-offset-4"
-                  >
-                    About
-                  </Link>
-                </li>
-              </ul>
-            </nav>
+      <div className="flex min-h-dvh flex-col bg-background">
+        <header className="rounded-b-[2rem] bg-primary text-primary-foreground shadow-lg">
+          <div className="mx-auto max-w-3xl px-5 pb-7 pt-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <Link to="/" className="text-2xl font-bold tracking-tight">
+                Free Food Finder
+              </Link>
+              <nav aria-label="Main">
+                <ul className="flex gap-5 text-lg">
+                  <li>
+                    <Link
+                      to="/"
+                      activeOptions={{ exact: true }}
+                      activeProps={{ className: "font-bold" }}
+                      className="underline decoration-2 underline-offset-4"
+                    >
+                      Cities
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/about"
+                      activeProps={{ className: "font-bold" }}
+                      className="underline decoration-2 underline-offset-4"
+                    >
+                      About
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+            <p className="mt-3 text-lg leading-snug">
+              You are safe here. Everything is free. No sign up, no ID, nothing saved.
+            </p>
           </div>
         </header>
 
@@ -164,6 +169,7 @@ function RootComponent() {
           {/* Required: nested routes render here. */}
           <Outlet />
         </main>
+
 
         <footer className="border-t-2 border-border bg-card">
           <div className="mx-auto max-w-3xl px-5 py-6 text-base text-muted-foreground">
