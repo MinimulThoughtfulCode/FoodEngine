@@ -216,14 +216,14 @@ function CityPage() {
         {isPending && <p className="mt-4 text-lg">Loading the list…</p>}
 
         {(isError || data?.error) && (
-          <p role="alert" className="mt-4 rounded-md border-2 border-destructive p-4 text-lg">
+          <p role="alert" className="mt-4 rounded-xl border-2 border-destructive bg-card p-4 text-lg">
             We could not load the list right now. Please try again in a few minutes, or call 211 for
             help finding food.
           </p>
         )}
 
         {!isPending && !isError && !data?.error && sites.length === 0 && (
-          <div className="mt-4 rounded-md border-2 border-border bg-card p-5">
+          <div className="mt-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
             <p className="text-lg font-bold">We do not have a verified list for {city.name} yet.</p>
             <p className="mt-2">
               {city.note ??
@@ -277,7 +277,7 @@ function CityPage() {
                   type="button"
                   onClick={() => setPage(safePage - 1)}
                   disabled={safePage === 0}
-                  className="min-h-14 rounded-md border-2 border-foreground px-6 text-xl font-bold disabled:opacity-40"
+                  className="min-h-14 rounded-xl border-2 border-border bg-secondary px-6 text-xl font-bold disabled:opacity-40"
                 >
                   &larr; Previous places
                 </button>
@@ -285,7 +285,7 @@ function CityPage() {
                   type="button"
                   onClick={() => setPage(safePage + 1)}
                   disabled={safePage >= pageCount - 1}
-                  className="min-h-14 rounded-md bg-primary px-6 text-xl font-bold text-primary-foreground disabled:opacity-40"
+                  className="min-h-14 rounded-xl bg-primary px-6 text-xl font-bold text-primary-foreground shadow-sm disabled:opacity-40"
                 >
                   Next places &rarr;
                 </button>
