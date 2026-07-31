@@ -107,90 +107,105 @@ function CityPage() {
 
 
   return (
-    <div className="mx-auto max-w-3xl px-5 py-8">
-      <p>
-        <Link to="/" className="underline decoration-2 underline-offset-4">
-          &larr; Choose a different city
-        </Link>
-      </p>
-
-      <h1 className="mt-4 text-4xl font-bold leading-tight">Free food in {city.name}</h1>
-
-      {city.available && city.note && (
-        <div className="mt-5 rounded-md border-2 border-border bg-muted p-5 text-lg">
-          <p>{city.note}</p>
-          {city.fallback && (
-            <p className="mt-2">
-              You can also try the{" "}
-              <a
-                href={city.fallback.url}
-                className="font-bold underline decoration-2 underline-offset-4"
-              >
-                {city.fallback.label}
-              </a>
-              .
-            </p>
-          )}
-        </div>
-      )}
-
-      <section aria-labelledby="location-heading" className="mt-6">
-        <h2 id="location-heading" className="text-2xl font-bold">
-          Show the closest places
-        </h2>
-        <p className="mt-2">
-          This is optional. Your location stays on your phone and is never saved.
+    <div className="mx-auto max-w-3xl px-4 pb-12 sm:px-5">
+      <div className="-mt-5 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+        <p>
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-lg underline decoration-2 underline-offset-4"
+          >
+            <ChevronLeft className="size-5" aria-hidden="true" />
+            Choose a different city
+          </Link>
         </p>
-        <button
-          type="button"
-          onClick={useMyLocation}
-          className="mt-4 inline-flex min-h-14 items-center rounded-md bg-primary px-6 text-xl font-bold text-primary-foreground hover:opacity-90"
-        >
-          {locStatus === "loading" ? "Finding you…" : "Use my location"}
-        </button>
 
-        <p aria-live="polite" className="mt-3 text-lg">
-          {locStatus === "ready" && "Showing the closest places first."}
-          {locStatus === "denied" &&
-            "Location is turned off. That is fine — the full list is below, and you can search by street or ZIP code."}
-          {locStatus === "error" &&
-            "We could not get your location. The full list is below, and you can search by street or ZIP code."}
-        </p>
-      </section>
+        <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+          Free food in {city.name}
+        </h1>
 
-      <section aria-labelledby="filter-heading" className="mt-8">
-        <h2 id="filter-heading" className="sr-only">
-          Search and filter
-        </h2>
-        <label htmlFor="site-search" className="block text-lg font-bold">
-          Search by name, street or ZIP code
-        </label>
-        <input
-          id="site-search"
-          type="search"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            setPage(0);
-          }}
-          placeholder="For example: a street name or ZIP code"
-          className="mt-2 min-h-14 w-full rounded-md border-2 border-input bg-card px-4 text-lg placeholder:text-muted-foreground"
-        />
+        {city.available && city.note && (
+          <div className="mt-4 rounded-xl border-2 border-accent bg-accent/40 p-4 text-lg">
+            <p>{city.note}</p>
+            {city.fallback && (
+              <p className="mt-2">
+                You can also try the{" "}
+                <a
+                  href={city.fallback.url}
+                  className="font-bold underline decoration-2 underline-offset-4"
+                >
+                  {city.fallback.label}
+                </a>
+                .
+              </p>
+            )}
+          </div>
+        )}
 
-        <label className="mt-4 flex min-h-12 items-center gap-3 text-lg font-bold">
-          <input
-            type="checkbox"
-            checked={openOnly}
-            onChange={(e) => {
-              setOpenOnly(e.target.checked);
-              setPage(0);
-            }}
-            className="size-6 accent-[var(--color-primary)]"
-          />
+        <section aria-labelledby="location-heading" className="mt-6">
+          <h2 id="location-heading" className="sr-only">
+            Show the closest places
+          </h2>
+          <button
+            type="button"
+            onClick={useMyLocation}
+            className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 text-xl font-bold text-primary-foreground shadow-sm hover:opacity-90"
+          >
+            <LocateFixed className="size-6" aria-hidden="true" />
+            {locStatus === "loading" ? "Finding you…" : "Use my location"}
+          </button>
+          <p className="mt-2 text-base text-muted-foreground">
+            Optional. Your location stays on your phone and is never saved.
+          </p>
 
-          Only show places open right now
-        </label>
-      </section>
+          <p aria-live="polite" className="mt-2 text-lg">
+            {locStatus === "ready" && "Showing the closest places first."}
+            {locStatus === "denied" &&
+              "Location is turned off. That is fine — the full list is below, and you can search by street or ZIP code."}
+            {locStatus === "error" &&
+              "We could not get your location. The full list is below, and you can search by street or ZIP code."}
+          </p>
+        </section>
+
+        <section aria-labelledby="filter-heading" className="mt-6">
+          <h2 id="filter-heading" className="sr-only">
+            Search and filter
+          </h2>
+          <label htmlFor="site-search" className="block text-lg font-bold">
+            Search by name, street or ZIP code
+          </label>
+          <div className="relative mt-2">
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <input
+              id="site-search"
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(0);
+              }}
+              placeholder="For example: a street name or ZIP code"
+              className="min-h-14 w-full rounded-xl border-2 border-input bg-background pl-12 pr-4 text-lg placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <label className="mt-3 flex min-h-12 items-center gap-3 text-lg font-bold">
+            <input
+              type="checkbox"
+              checked={openOnly}
+              onChange={(e) => {
+                setOpenOnly(e.target.checked);
+                setPage(0);
+              }}
+              className="size-6 accent-[var(--color-primary)]"
+            />
+            Only show places open right now
+          </label>
+        </section>
+      </div>
+
 
       <section aria-labelledby="results-heading" className="mt-8">
         <h2 id="results-heading" className="text-2xl font-bold">
