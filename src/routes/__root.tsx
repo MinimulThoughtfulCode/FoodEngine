@@ -23,7 +23,7 @@ function NotFoundComponent() {
       <div className="mt-6">
         <Link
           to="/"
-          className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+          className="inline-flex min-h-12 items-center rounded-xl bg-primary px-6 text-lg font-bold text-primary-foreground"
         >
           Find food near me
         </Link>
@@ -51,13 +51,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             router.invalidate();
             reset();
           }}
-          className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+          className="inline-flex min-h-12 items-center rounded-xl bg-primary px-6 text-lg font-bold text-primary-foreground"
         >
           Try again
         </button>
         <a
           href="/"
-          className="inline-flex min-h-12 items-center rounded-md border-2 border-primary px-6 text-lg font-bold text-primary"
+          className="inline-flex min-h-12 items-center rounded-xl border-2 border-primary px-6 text-lg font-bold text-primary"
         >
           Go home
         </a>
@@ -123,7 +123,7 @@ function RootComponent() {
       <Analytics />
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-3 focus:text-lg focus:font-bold focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-primary focus:px-4 focus:py-3 focus:text-lg focus:font-bold focus:text-primary-foreground"
       >
         Skip to main content
       </a>

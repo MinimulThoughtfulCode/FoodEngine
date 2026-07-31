@@ -68,7 +68,7 @@ function SiteDetail() {
           <Link
             to="/city/$city"
             params={{ city: city.id }}
-            className="inline-flex min-h-12 items-center rounded-md bg-primary px-6 text-lg font-bold text-primary-foreground"
+            className="inline-flex min-h-12 items-center rounded-xl bg-primary px-6 text-lg font-bold text-primary-foreground"
           >
             Back to all places in {city.shortName}
           </Link>
@@ -98,7 +98,7 @@ function SiteDetail() {
       {site.category && <p className="mt-2 text-lg">{site.category}</p>}
 
       {site.availability && (
-        <p className="mt-3 rounded-md border-2 border-border bg-muted p-4 text-lg">
+        <p className="mt-3 rounded-xl border-2 border-border bg-muted p-4 text-lg">
           <span className="font-bold">Taking people right now: </span>
           {site.availability}
         </p>
@@ -113,7 +113,7 @@ function SiteDetail() {
           {phone && (
             <a
               href={telHref(phone)}
-              className="inline-flex min-h-14 items-center rounded-md bg-primary px-6 text-xl font-bold text-primary-foreground hover:opacity-90"
+              className="inline-flex min-h-14 items-center rounded-xl bg-primary px-6 text-xl font-bold text-primary-foreground hover:opacity-90"
             >
               Call {phone}
             </a>
@@ -122,7 +122,7 @@ function SiteDetail() {
             href={directionsUrl(site, "transit")}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-14 items-center rounded-md border-2 border-primary px-6 text-xl font-bold text-primary hover:bg-accent"
+            className="inline-flex min-h-14 items-center rounded-xl border-2 border-primary px-6 text-xl font-bold text-primary hover:bg-accent"
           >
             Directions by bus or train
             <span className="sr-only"> (opens in a new tab)</span>
@@ -131,7 +131,7 @@ function SiteDetail() {
             href={directionsUrl(site, "walking")}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-14 items-center rounded-md border-2 border-primary px-6 text-xl font-bold text-primary hover:bg-accent"
+            className="inline-flex min-h-14 items-center rounded-xl border-2 border-primary px-6 text-xl font-bold text-primary hover:bg-accent"
           >
             Walking directions
             <span className="sr-only"> (opens in a new tab)</span>
