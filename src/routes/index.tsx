@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
 import { CITIES } from "@/lib/food-sites";
 
 export const Route = createFileRoute("/")({
