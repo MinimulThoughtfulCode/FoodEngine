@@ -4,15 +4,15 @@ import { CITIES } from "@/lib/food-sites";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Free Food Finder — where the information comes from" },
+      { title: "About Food Engine — where the information comes from" },
       {
         name: "description",
         content:
-          "Free Food Finder lists free food banks and meals using official city open data. No accounts, no tracking, no stored locations.",
+          "Food Engine lists free food banks and meals using official city open data. No accounts, no tracking, no stored locations.",
       },
       {
         property: "og:title",
-        content: "About Free Food Finder — where the information comes from",
+        content: "About Food Engine — where the information comes from",
       },
       {
         property: "og:description",
@@ -30,7 +30,7 @@ function About() {
       <h1 className="text-4xl font-bold leading-tight">About this site</h1>
 
       <p className="mt-5 text-xl">
-        Free Food Finder helps you find places that give out free food near you. It is free, there
+        Food Engine helps you find places that give out free food near you. It is free, there
         is nothing to sign up for, and you never have to give your name.
       </p>
 
