@@ -71,7 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Free Food Finder — food banks and free meals near you" },
+      { title: "Food Engine — food banks and free meals near you" },
       {
         name: "description",
         content:
