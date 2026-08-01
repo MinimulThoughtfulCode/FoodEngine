@@ -5,7 +5,7 @@ import { CITIES } from "@/lib/food-sites";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Free Food Finder — food banks and free meals near you" },
+      { title: "Food Engine — food banks and free meals near you" },
       {
         name: "description",
         content:
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "Free Food Finder — food banks and free meals near you",
+        content: "Food Engine — food banks and free meals near you",
       },
       {
         property: "og:description",
