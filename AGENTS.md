@@ -1,0 +1,2 @@
+- Favorites and last-loaded city lists live only in device localStorage (no accounts) — the site promises nothing is stored on our servers.
+- City lists are slimmed and cached in memory server-side; public/sw.js gives network-first offline fallback — keeps the site usable on weak connections.

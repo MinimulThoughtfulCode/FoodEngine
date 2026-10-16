@@ -6,8 +6,10 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useFavorites } from "../lib/favorites";
 import { Analytics } from "@vercel/analytics/react";
 
 import appCss from "../styles.css?url";
@@ -32,7 +34,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -82,16 +84,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      {
-        rel: "preconnect",
-        href: "https://fonts.gstatic.com",
-        crossOrigin: "anonymous",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap",
-      },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
@@ -115,8 +107,52 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function SavedLink() {
+  const { list } = useFavorites();
+  return (
+    <Link
+      to="/saved"
+      activeProps={{ className: "font-bold" }}
+      className="underline decoration-2 underline-offset-4"
+    >
+      Saved{list.length ? ` (${list.length})` : ""}
+    </Link>
+  );
+}
+
+function SlowNotice() {
+  const [slow, setSlow] = useState(false);
+  const [offline, setOffline] = useState(false);
+  useEffect(() => {
+    const c = (navigator as unknown as { connection?: { effectiveType?: string; saveData?: boolean } })
+      .connection;
+    setSlow(!!c && (c.saveData === true || ["slow-2g", "2g", "3g"].includes(c.effectiveType ?? "")));
+    const upd = () => setOffline(!navigator.onLine);
+    upd();
+    window.addEventListener("online", upd);
+    window.addEventListener("offline", upd);
+    return () => {
+      window.removeEventListener("online", upd);
+      window.removeEventListener("offline", upd);
+    };
+  }, []);
+  if (!slow && !offline) return null;
+  return (
+    <p className="mt-2 text-base leading-snug opacity-90">
+      {offline
+        ? "You are offline. Showing what is saved on your phone."
+        : "Slow connection detected. The site is in light mode."}
+    </p>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => {
+    if (import.meta.env.PROD && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -148,6 +184,9 @@ function RootComponent() {
                     </Link>
                   </li>
                   <li>
+                    <SavedLink />
+                  </li>
+                  <li>
                     <Link
                       to="/about"
                       activeProps={{ className: "font-bold" }}
@@ -160,8 +199,9 @@ function RootComponent() {
               </nav>
             </div>
             <p className="mt-3 text-lg leading-snug">
-              You are safe here. Everything is free. No sign up, no ID, nothing saved.
+              You are safe here. Everything is free. No sign up, no ID. Anything you save stays on your phone.
             </p>
+            <SlowNotice />
           </div>
         </header>
 

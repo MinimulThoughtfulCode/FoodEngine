@@ -1,6 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { OpenBadge } from "@/components/SiteCard";
 import {
   DAY_NAMES,
@@ -11,7 +9,9 @@ import {
   primaryPhone,
   telHref,
 } from "@/lib/food-sites";
-import { getCitySites } from "@/lib/food-sites.functions";
+import { useCitySites } from "@/lib/use-city-sites";
+import { useFavorites } from "@/lib/favorites";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 export const Route = createFileRoute("/city/$city/$siteId")({
   beforeLoad: ({ params }) => {
@@ -40,18 +40,16 @@ export const Route = createFileRoute("/city/$city/$siteId")({
 function SiteDetail() {
   const { city: cityId, siteId } = Route.useParams();
   const city = getCity(cityId)!;
-  const fetchSites = useServerFn(getCitySites);
+  const { data, isPending } = useCitySites(city.id);
+  const { list: saved } = useFavorites();
 
-  const { data, isPending } = useQuery({
-    queryKey: ["city-sites", cityId],
-    queryFn: () => fetchSites({ data: { city: cityId } }),
-    staleTime: 15 * 60 * 1000,
-  });
-
-  const site = data?.sites.find((s) => s.id === siteId);
+  const live = data?.sites.find((s) => s.id === siteId);
+  const savedCopy = saved.find((s) => s.city === city.id && s.id === siteId);
+  const site = live ?? savedCopy;
+  const missingUpstream = !live && !!savedCopy && !!data && data.sites.length > 0;
   const today = nowInZone(city.timeZone).day;
 
-  if (isPending) {
+  if (isPending && !site) {
     return (
       <div className="mx-auto max-w-3xl px-5 py-10">
         <p className="text-lg">Loading…</p>
@@ -96,6 +94,14 @@ function SiteDetail() {
         <OpenBadge site={site} city={city} />
       </div>
       {site.category && <p className="mt-2 text-lg">{site.category}</p>}
+      <div className="mt-4">
+        <FavoriteButton site={site} />
+      </div>
+      {missingUpstream && (
+        <p role="note" className="mt-3 rounded-xl border-2 border-destructive bg-card p-4 text-lg">
+          This place is no longer on the city's list. It may have closed, so please call first.
+        </p>
+      )}
 
       {site.availability && (
         <p className="mt-3 rounded-xl border-2 border-border bg-muted p-4 text-lg">
