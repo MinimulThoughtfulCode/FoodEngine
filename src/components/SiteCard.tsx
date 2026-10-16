@@ -9,6 +9,7 @@ import {
   type City,
   type FoodSite,
 } from "@/lib/food-sites";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 const STATUS_CLASS: Record<string, string> = {
   open: "bg-success text-success-foreground",
@@ -114,6 +115,7 @@ export function SiteCard({
           Directions
           <span className="sr-only"> to {site.name}, opens in a new tab</span>
         </a>
+        <FavoriteButton site={site} className="sm:col-span-2" />
       </div>
     </li>
   );

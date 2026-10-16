@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
 import { ChevronLeft, LocateFixed, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SiteCard } from "@/components/SiteCard";
 import {
   distanceMiles,
@@ -11,7 +9,8 @@ import {
   matchesQuery,
   type FoodSite,
 } from "@/lib/food-sites";
-import { getCitySites } from "@/lib/food-sites.functions";
+import { useCitySites } from "@/lib/use-city-sites";
+import { useFavorites } from "@/lib/favorites";
 
 export const Route = createFileRoute("/city/$city/")({
   beforeLoad: ({ params }) => {
@@ -42,13 +41,12 @@ type Coords = { lat: number; lng: number };
 function CityPage() {
   const { city: cityId } = Route.useParams();
   const city = getCity(cityId)!;
-  const fetchSites = useServerFn(getCitySites);
-
-  const { data, isPending, isError } = useQuery({
-    queryKey: ["city-sites", cityId],
-    queryFn: () => fetchSites({ data: { city: cityId } }),
-    staleTime: 15 * 60 * 1000,
-  });
+  const { data, isPending, isError, fromDevice } = useCitySites(city.id);
+  const { refresh } = useFavorites();
+  useEffect(() => {
+    if (data?.sites.length && !fromDevice) refresh(data.sites);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, fromDevice]);
 
   const [coords, setCoords] = useState<Coords | null>(null);
   const [locStatus, setLocStatus] = useState<"idle" | "loading" | "denied" | "error" | "ready">(
@@ -98,7 +96,7 @@ function CityPage() {
 
   const matchCount = useMemo(() => results.filter((r) => r.matches).length, [results]);
 
-  const PAGE_SIZE = 40;
+  const PAGE_SIZE = 20;
   const [page, setPage] = useState(0);
   const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -214,8 +212,14 @@ function CityPage() {
         </h2>
 
         {isPending && <p className="mt-4 text-lg">Loading the list…</p>}
+        {fromDevice && (
+          <p className="mt-2 text-base text-muted-foreground">
+            Showing the list saved on your phone from{" "}
+            {new Date(fromDevice).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}.
+          </p>
+        )}
 
-        {(isError || data?.error) && (
+        {(isError || data?.error) && !data?.sites.length && (
           <p role="alert" className="mt-4 rounded-xl border-2 border-destructive bg-card p-4 text-lg">
             We could not load the list right now. Please try again in a few minutes, or call 211 for
             help finding food.
