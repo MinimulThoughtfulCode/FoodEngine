@@ -5,20 +5,20 @@ import { CITIES } from "@/lib/food-sites";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ZipFood — food banks and free meals near you" },
+      { title: "ZipFood — free food near you in Los Angeles" },
       {
         name: "description",
         content:
-          "Pick your city to see free food banks, pantries and hot meals near you, with today's hours, phone numbers and directions.",
+          "Free food banks, pantries and hot meals across Los Angeles County, with today's hours, phone numbers and directions.",
       },
       {
         property: "og:title",
-        content: "ZipFood — food banks and free meals near you",
+        content: "ZipFood — free food near you in Los Angeles",
       },
       {
         property: "og:description",
         content:
-          "Pick your city to see free food banks and hot meals near you, with hours and directions. Free, no sign up.",
+          "Free food banks and hot meals across Los Angeles, with hours and directions. Free, no sign up.",
       },
     ],
   }),
@@ -28,18 +28,34 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="mx-auto max-w-3xl px-4 pb-12 sm:px-5">
-      <div className="-mt-5 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-        <h1 className="text-3xl font-bold leading-tight sm:text-4xl">Find free food near you</h1>
+      <div className="-mt-5 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
+        <h1 className="text-3xl font-bold leading-tight sm:text-4xl">Free food near you in Los Angeles</h1>
         <p className="mt-3 text-lg text-muted-foreground">
           Warm meals and grocery pantries, open to anyone. You do not need to pay, sign up, or give
           your name.
         </p>
 
+        <Link
+          to="/city/$city"
+          params={{ city: "los-angeles" }}
+          className="mt-6 flex min-h-20 items-center justify-between gap-3 rounded-2xl bg-primary px-5 py-5 text-primary-foreground shadow-md hover:opacity-95"
+        >
+          <span className="min-w-0">
+            <span className="block text-2xl font-bold">Los Angeles</span>
+            <span className="block text-base opacity-90">All of LA County · 340+ places</span>
+          </span>
+          <ChevronRight className="size-7 shrink-0" aria-hidden="true" />
+        </Link>
+        <p className="mt-3 text-base">
+          Need help right now in LA? Call or text{" "}
+          <a href="tel:211" className="font-bold underline decoration-2 underline-offset-4">211 LA</a>.
+        </p>
+
         <h2 className="mt-7 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          Select your city
+          Other cities
         </h2>
         <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-          {CITIES.map((city) => (
+          {CITIES.filter((c) => c.id !== "los-angeles").map((city) => (
             <li key={city.id}>
               <Link
                 to="/city/$city"
@@ -61,7 +77,7 @@ function Index() {
         <h2 className="text-2xl font-bold">How it works</h2>
         <ol className="mt-4 space-y-4">
           {[
-            "Choose the city you are in.",
+            "Tap Los Angeles, or choose the city you are in.",
             "If you want, tap Use my location so the closest places come first. This is optional.",
             "Call ahead if you can, then get directions.",
           ].map((step, i) => (
