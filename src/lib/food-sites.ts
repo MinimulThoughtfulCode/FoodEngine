@@ -70,17 +70,6 @@ export type City = {
 
 export const CITIES: City[] = [
   {
-    id: "new-york",
-    name: "New York City",
-    shortName: "New York",
-    state: "NY",
-    timeZone: "America/New_York",
-    center: { lat: 40.7128, lng: -74.006 },
-    sourceName: "Food Help NYC (NYC Department of Social Services)",
-    sourceUrl: "https://finder.nyc.gov/foodhelp",
-    available: true,
-  },
-  {
     id: "los-angeles",
     name: "Los Angeles",
     shortName: "Los Angeles",
@@ -91,6 +80,17 @@ export const CITIES: City[] = [
     sourceUrl: "https://dpw.lacounty.gov/epd/fooddrop/",
     available: true,
     note: "This list covers all of Los Angeles County. It says which food each place hands out and whether they are active right now.",
+  },
+  {
+    id: "new-york",
+    name: "New York City",
+    shortName: "New York",
+    state: "NY",
+    timeZone: "America/New_York",
+    center: { lat: 40.7128, lng: -74.006 },
+    sourceName: "Food Help NYC (NYC Department of Social Services)",
+    sourceUrl: "https://finder.nyc.gov/foodhelp",
+    available: true,
   },
   {
     id: "minneapolis",

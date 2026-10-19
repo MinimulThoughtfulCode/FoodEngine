@@ -19,8 +19,8 @@ export const Route = createFileRoute("/city/$city/")({
   head: ({ params }) => {
     const city = getCity(params.city);
     const title = city
-      ? `Free food banks in ${city.name} — hours and locations`
-      : "Free food banks";
+      ? `Free food banks in ${city.name} — ZipFood`
+      : "Free food banks — ZipFood";
     const description = city
       ? `A plain list of free food banks, pantries and hot meals in ${city.name}, ${city.state}, with today's hours, phone numbers and directions.`
       : "Find free food banks near you.";
@@ -121,6 +121,14 @@ function CityPage() {
         <h1 className="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
           Free food in {city.name}
         </h1>
+
+        {city.id === "los-angeles" && (
+          <p className="mt-4 rounded-xl border-2 border-primary bg-accent p-4 text-lg">
+            Need help now in LA County? Call or text{" "}
+            <a href="tel:211" className="font-bold underline decoration-2 underline-offset-4">211 LA</a>{" "}
+            any time, day or night.
+          </p>
+        )}
 
         {city.available && city.note && (
           <div className="mt-4 rounded-xl border-2 border-accent bg-accent/40 p-4 text-lg">
@@ -276,22 +284,22 @@ function CityPage() {
               ))}
             </ul>
             {pageCount > 1 && (
-              <nav aria-label="More results" className="mt-6 flex flex-wrap gap-4">
+              <nav aria-label="More results" className="mt-6 grid grid-cols-2 gap-3 sm:flex sm:gap-4">
                 <button
                   type="button"
                   onClick={() => setPage(safePage - 1)}
                   disabled={safePage === 0}
-                  className="min-h-14 rounded-xl border-2 border-border bg-secondary px-6 text-xl font-bold disabled:opacity-40"
+                  className="min-h-14 rounded-xl border-2 border-border bg-secondary px-4 text-lg sm:px-6 sm:text-xl font-bold disabled:opacity-40"
                 >
-                  &larr; Previous places
+                  &larr; Previous
                 </button>
                 <button
                   type="button"
                   onClick={() => setPage(safePage + 1)}
                   disabled={safePage >= pageCount - 1}
-                  className="min-h-14 rounded-xl bg-primary px-6 text-xl font-bold text-primary-foreground shadow-sm disabled:opacity-40"
+                  className="min-h-14 rounded-xl bg-primary px-4 text-lg sm:px-6 sm:text-xl font-bold text-primary-foreground shadow-sm disabled:opacity-40"
                 >
-                  Next places &rarr;
+                  Next &rarr;
                 </button>
               </nav>
             )}

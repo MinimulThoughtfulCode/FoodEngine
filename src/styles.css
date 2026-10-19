@@ -165,6 +165,10 @@
     line-height: 1.6;
   }
 
+  input, select, textarea {
+    font-size: max(16px, 1em);
+  }
+
   :focus-visible {
     outline: 3px solid var(--color-ring);
     outline-offset: 3px;
