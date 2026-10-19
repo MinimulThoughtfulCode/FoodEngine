@@ -166,7 +166,7 @@ function RootComponent() {
 
       <div className="flex min-h-dvh flex-col bg-background">
         <header className="rounded-b-[2rem] bg-primary text-primary-foreground shadow-lg">
-          <div className="mx-auto max-w-3xl px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))] sm:px-5 sm:pb-7 sm:pt-5">
+          <div className="mx-auto max-w-3xl px-4 pb-9 pt-[max(1rem,env(safe-area-inset-top))] sm:px-5 sm:pb-7 sm:pt-5">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
               <Link to="/" className="truncate text-2xl font-bold tracking-tight">
                 ZipFood
