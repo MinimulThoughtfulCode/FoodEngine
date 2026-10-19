@@ -6,12 +6,12 @@ import { useFavorites } from "@/lib/favorites";
 export const Route = createFileRoute("/saved")({
   head: () => ({
     meta: [
-      { title: "My saved places — Free Food Finder" },
+      { title: "My saved places — ZipFood" },
       {
         name: "description",
         content: "Food pantries and free meals you saved. Stored only on your phone and works offline.",
       },
-      { property: "og:title", content: "My saved places — Free Food Finder" },
+      { property: "og:title", content: "My saved places — ZipFood" },
       {
         property: "og:description",
         content: "Food pantries and free meals you saved, kept only on your phone.",

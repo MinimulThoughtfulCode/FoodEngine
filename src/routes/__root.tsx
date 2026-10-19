@@ -73,7 +73,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Food Engine — food banks and free meals near you" },
+      { title: "ZipFood — food banks and free meals near you" },
       {
         name: "description",
         content:
@@ -169,7 +169,7 @@ function RootComponent() {
           <div className="mx-auto max-w-3xl px-5 pb-7 pt-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Link to="/" className="text-2xl font-bold tracking-tight">
-                Free Food Finder
+                ZipFood
               </Link>
               <nav aria-label="Main">
                 <ul className="flex gap-5 text-lg">
