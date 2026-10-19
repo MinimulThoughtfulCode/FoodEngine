@@ -72,12 +72,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ZipFood — food banks and free meals near you" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { title: "ZipFood — free food in Los Angeles" },
       {
         name: "description",
         content:
-          "Find free food banks, pantries and hot meals near you in New York City, Chicago, Los Angeles, San Francisco, Minneapolis and Philadelphia. No sign up needed.",
+          "Free food banks, pantries and hot meals in Los Angeles — plus New York City, Chicago, Los Angeles, San Francisco, Minneapolis and Philadelphia. No sign up needed.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -113,7 +113,7 @@ function SavedLink() {
     <Link
       to="/saved"
       activeProps={{ className: "font-bold" }}
-      className="underline decoration-2 underline-offset-4"
+      className="inline-flex min-h-11 items-center px-2 underline decoration-2 underline-offset-4"
     >
       Saved{list.length ? ` (${list.length})` : ""}
     </Link>
@@ -166,19 +166,19 @@ function RootComponent() {
 
       <div className="flex min-h-dvh flex-col bg-background">
         <header className="rounded-b-[2rem] bg-primary text-primary-foreground shadow-lg">
-          <div className="mx-auto max-w-3xl px-5 pb-7 pt-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Link to="/" className="text-2xl font-bold tracking-tight">
+          <div className="mx-auto max-w-3xl px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))] sm:px-5 sm:pb-7 sm:pt-5">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+              <Link to="/" className="truncate text-2xl font-bold tracking-tight">
                 ZipFood
               </Link>
               <nav aria-label="Main">
-                <ul className="flex gap-5 text-lg">
+                <ul className="flex gap-1 text-base sm:gap-3 sm:text-lg">
                   <li>
                     <Link
                       to="/"
                       activeOptions={{ exact: true }}
                       activeProps={{ className: "font-bold" }}
-                      className="underline decoration-2 underline-offset-4"
+                      className="inline-flex min-h-11 items-center px-2 underline decoration-2 underline-offset-4"
                     >
                       Cities
                     </Link>
@@ -190,7 +190,7 @@ function RootComponent() {
                     <Link
                       to="/about"
                       activeProps={{ className: "font-bold" }}
-                      className="underline decoration-2 underline-offset-4"
+                      className="inline-flex min-h-11 items-center px-2 underline decoration-2 underline-offset-4"
                     >
                       About
                     </Link>
@@ -198,7 +198,7 @@ function RootComponent() {
                 </ul>
               </nav>
             </div>
-            <p className="mt-3 text-lg leading-snug">
+            <p className="mt-2 text-base leading-snug sm:mt-3 sm:text-lg">
               You are safe here. Everything is free. No sign up, no ID. Anything you save stays on your phone.
             </p>
             <SlowNotice />
@@ -212,7 +212,7 @@ function RootComponent() {
 
 
         <footer className="border-t-2 border-border bg-card">
-          <div className="mx-auto max-w-3xl px-5 py-6 text-base text-muted-foreground">
+          <div className="mx-auto max-w-3xl px-5 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-base text-muted-foreground">
             <p>
               This site is free to use. We do not ask for your name and we do not store your
               location.

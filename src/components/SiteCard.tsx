@@ -45,11 +45,11 @@ export function SiteCard({
   const state = getOpenState(site, city.timeZone);
 
   return (
-    <li className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <li className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
       <div className="flex items-start justify-between gap-3">
-        <div className="space-y-2">
+        <div className="min-w-0 space-y-2">
           <OpenBadge site={site} city={city} />
-          <h3 className="text-xl font-bold leading-tight sm:text-2xl">
+          <h3 className="text-xl font-bold leading-tight break-words sm:text-2xl">
             <Link
               to="/city/$city/$siteId"
               params={{ city: city.id, siteId: site.id }}
@@ -77,7 +77,7 @@ export function SiteCard({
 
         <p className="flex items-start gap-2 text-muted-foreground">
           <MapPin className="mt-1 size-5 shrink-0 text-primary" aria-hidden="true" />
-          <span>{site.address}</span>
+          <span className="min-w-0 break-words">{site.address}</span>
         </p>
 
         {site.availability && (
