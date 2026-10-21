@@ -11,6 +11,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { useFavorites } from "../lib/favorites";
 import { Analytics } from "@vercel/analytics/react";
+import { LowDataProvider, useLowData } from "../hooks/use-low-data";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -101,8 +102,10 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {children}
-        <Scripts />
+        <LowDataProvider>
+          {children}
+          <Scripts />
+        </LowDataProvider>
       </body>
     </html>
   );
@@ -121,13 +124,10 @@ function SavedLink() {
   );
 }
 
-function SlowNotice() {
-  const [slow, setSlow] = useState(false);
+function LowDataBar() {
+  const { lowData, auto, setLowData } = useLowData();
   const [offline, setOffline] = useState(false);
   useEffect(() => {
-    const c = (navigator as unknown as { connection?: { effectiveType?: string; saveData?: boolean } })
-      .connection;
-    setSlow(!!c && (c.saveData === true || ["slow-2g", "2g", "3g"].includes(c.effectiveType ?? "")));
     const upd = () => setOffline(!navigator.onLine);
     upd();
     window.addEventListener("online", upd);
@@ -137,13 +137,50 @@ function SlowNotice() {
       window.removeEventListener("offline", upd);
     };
   }, []);
-  if (!slow && !offline) return null;
+
+  if (offline) {
+    return (
+      <p className="mt-4 text-base leading-snug opacity-90">
+        You are offline. Showing what is saved on your phone.
+      </p>
+    );
+  }
+
+  if (!lowData) return null;
+
   return (
-    <p className="mt-2 text-base leading-snug opacity-90">
-      {offline
-        ? "You are offline. Showing what is saved on your phone."
-        : "Slow connection detected. The site is in light mode."}
-    </p>
+    <div
+      className="mt-4 flex items-center justify-between gap-4 rounded-2xl bg-accent px-4 py-3"
+      style={{ boxShadow: "inset 0 0 0 2px var(--color-primary)" }}
+    >
+      <p className="text-base font-semibold leading-snug">
+        {auto
+          ? "Slow connection detected. The site is in light mode."
+          : "Light mode is on. Using less data."}
+      </p>
+      <label
+        className="relative block h-9 w-16 shrink-0 cursor-pointer"
+        aria-label="Light mode"
+      >
+        <input
+          type="checkbox"
+          checked={lowData}
+          onChange={(e) => setLowData(e.target.checked)}
+          className="absolute inset-0 m-0 h-full w-full cursor-pointer opacity-0"
+        />
+        <span
+          className="absolute inset-0 rounded-full transition-colors duration-200"
+          style={{
+            background: "var(--color-primary)",
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.25)",
+          }}
+        />
+        <span
+          className="absolute top-1 h-7 w-7 rounded-full bg-primary-foreground shadow-md transition-all duration-200"
+          style={{ left: "32px" }}
+        />
+      </label>
+    </div>
   );
 }
 
@@ -202,7 +239,7 @@ function RootComponent() {
             <p className="mt-2 text-base leading-snug sm:mt-3 sm:text-lg">
               You are safe here. Everything is free. No sign up, no ID. Anything you save stays on your phone.
             </p>
-            <SlowNotice />
+            <LowDataBar />
           </div>
         </header>
 
@@ -231,6 +268,6 @@ function RootComponent() {
           </div>
         </footer>
       </div>
-    </QueryClientProvider>
+      </QueryClientProvider>
   );
 }

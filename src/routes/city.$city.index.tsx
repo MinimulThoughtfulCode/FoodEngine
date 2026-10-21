@@ -11,6 +11,7 @@ import {
 } from "@/lib/food-sites";
 import { useCitySites } from "@/lib/use-city-sites";
 import { useFavorites } from "@/lib/favorites";
+import { useLowData } from "@/hooks/use-low-data";
 
 export const Route = createFileRoute("/city/$city/")({
   beforeLoad: ({ params }) => {
@@ -43,6 +44,7 @@ function CityPage() {
   const city = getCity(cityId)!;
   const { data, isPending, isError, fromDevice } = useCitySites(city.id);
   const { refresh } = useFavorites();
+  const { lowData } = useLowData();
   useEffect(() => {
     if (data?.sites.length && !fromDevice) refresh(data.sites);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +98,7 @@ function CityPage() {
 
   const matchCount = useMemo(() => results.filter((r) => r.matches).length, [results]);
 
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = lowData ? 10 : 20;
   const [page, setPage] = useState(0);
   const pageCount = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
