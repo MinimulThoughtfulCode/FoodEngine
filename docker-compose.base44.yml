@@ -1,0 +1,52 @@
+# Base44 sandbox dev environment for ZipFood (TanStack Start + Vite).
+#
+# Runs the app FROM THE CLONED SOURCE with Vite's dev server so edits hot-reload.
+# The Vite config wrapper (@lovable.dev/vite-tanstack-config) serves the dev
+# server on port 8080, so that is the container port mapped to the preview's
+# host port 3000.
+services:
+  web:
+    image: oven/bun:1
+    working_dir: /app
+    labels:
+      base44.project: "ZipFood"
+      base44.kind: "web"
+      base44.port: "3000"
+    ports:
+      - "3000:8080"
+    volumes:
+      # Source is bind-mounted so file edits are picked up live; dependencies
+      # live in a volume and are (re)installed from the lockfile on startup.
+      - ./:/app
+      - web_node_modules:/app/node_modules
+    environment:
+      # Passed through from the sandbox; Vite appends it to server.allowedHosts
+      # so the preview proxy's Host header is accepted.
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+      - BASE44_PREVIEW_MODE
+    # Install after mounts are available, then exec the dev server (0.0.0.0 so
+    # the preview proxy can reach it).
+    command:
+      [
+        "sh",
+        "-ec",
+        "bun install --frozen-lockfile && exec bun run dev --host 0.0.0.0 --port 8080 --strictPort",
+      ]
+    healthcheck:
+      # The bun image has no curl/wget, so probe with bun's fetch. This hits the
+      # real page (SSR) rather than just checking an open port.
+      test:
+        [
+          "CMD",
+          "bun",
+          "-e",
+          "fetch('http://127.0.0.1:8080/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: on-failure
+
+volumes:
+  web_node_modules:
