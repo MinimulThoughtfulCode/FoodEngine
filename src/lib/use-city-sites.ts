@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import type { CityId } from "./food-sites";
 import { getCitySites, type CitySitesResult } from "./food-sites.functions";
+import { useLowData } from "@/hooks/use-low-data";
 
 const key = (city: string) => `fff:city:v1:${city}`;
 
@@ -23,6 +24,7 @@ export function useCitySites(cityId: CityId) {
   const fetchSites = useServerFn(getCitySites);
   const qc = useQueryClient();
   const [fromDevice, setFromDevice] = useState<number | null>(null);
+  const { lowData } = useLowData();
 
   useEffect(() => {
     const cached = readCached(cityId);
@@ -52,9 +54,10 @@ export function useCitySites(cityId: CityId) {
       }
       return res;
     },
-    staleTime: 15 * 60 * 1000,
+    staleTime: lowData ? 60 * 60 * 1000 : 15 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     retry: 1,
+    refetchOnWindowFocus: !lowData,
   });
 
   return { ...query, fromDevice };
